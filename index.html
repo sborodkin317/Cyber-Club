@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HUSS CLUB</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --neon-red: #ff003c;
+            --dark-bg: #050505;
+        }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            font-family: 'Montserrat', sans-serif; 
+            background-color: var(--dark-bg);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        /* --- ЭФФЕКТ ДЫМА --- */
+        .smoke-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .smoke {
+            position: absolute;
+            bottom: -100px;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(255,0,60,0.15) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            filter: blur(20px);
+            animation: floatUp 10s infinite linear;
+            transition: transform 0.1s ease-out;
+        }
+        .smoke:nth-child(1) { left: 10%; animation-duration: 12s; }
+        .smoke:nth-child(2) { left: 50%; animation-duration: 15s; width: 400px; height: 400px; }
+        .smoke:nth-child(3) { left: 80%; animation-duration: 8s; }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateY(-100vh) scale(2); opacity: 0; }
+        }
+
+        /* --- ЭКРАН ПРИВЕТСТВИЯ --- */
+        #welcome-screen {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .logo { font-size: 42px; font-weight: 900; margin: 0; line-height: 1; letter-spacing: 2px; text-align: center;}
+        .text-huss { 
+            color: #fff;
+            text-shadow: 0 0 5px #fff, 0 0 10px var(--neon-red), 0 0 20px var(--neon-red), 0 0 40px var(--neon-red);
+        }
+        .text-club { color: #fff; font-weight: 700; font-size: 30px; display: block; margin-top: 5px;}
+
+        .enter-btn {
+            margin-top: 50px;
+            background: transparent;
+            color: var(--neon-red);
+            border: 2px solid var(--neon-red);
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px rgba(255,0,60,0.3), inset 0 0 10px rgba(255,0,60,0.3);
+            transition: 0.3s;
+        }
+        .enter-btn:active {
+            background: var(--neon-red);
+            color: #fff;
+            box-shadow: 0 0 20px var(--neon-red);
+        }
+
+        /* --- ОСНОВНОЙ ЭКРАН --- */
+        #main-app { display: none; padding-bottom: 50px; }
+        
+        header {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            background: rgba(5,5,5,0.8);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(255,0,60,0.2);
+        }
+        .menu-icon {
+            width: 30px; height: 20px;
+            display: flex; flex-direction: column; justify-content: space-between;
+            cursor: pointer;
+        }
+        .menu-icon span { width: 100%; height: 3px; background: var(--neon-red); box-shadow: 0 0 5px var(--neon-red); }
+        .header-title { margin-left: 20px; font-size: 20px; font-weight: 900; letter-spacing: 1px;}
+        
+        #sidebar {
+            position: fixed;
+            top: 0; left: -250px;
+            width: 250px; height: 100vh;
+            background: rgba(10,10,10,0.95);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid var(--neon-red);
+            z-index: 200;
+            transition: 0.3s ease-in-out;
+            padding: 20px;
+            box-shadow: 5px 0 20px rgba(255,0,60,0.1);
+        }
+        #sidebar.open { left: 0; }
+        .close-btn { font-size: 30px; color: var(--neon-red); cursor: pointer; margin-bottom: 30px; }
+        
+        .nav-link {
+            display: block;
+            color: #fff;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 700;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+        }
+        .nav-link:active { color: var(--neon-red); text-shadow: 0 0 10px var(--neon-red); }
+
+        .content-section { display: none; padding: 20px; }
+        .content-section.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .section-title { font-size: 24px; font-weight: 900; color: var(--neon-red); text-shadow: 0 0 10px rgba(255,0,60,0.5); margin-bottom: 20px; text-transform: uppercase; }
+        
+        .grid-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        
+        .neon-btn {
+            background: rgba(255,0,60,0.1);
+            color: var(--neon-red);
+            border: 1px solid var(--neon-red);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(255,0,60,0.1);
+            transition: 0.2s;
+        }
+        .neon-btn.selected { 
+            background: var(--neon-red); 
+            color: #fff; 
+            box-shadow: 0 0 20px var(--neon-red); 
+        }
+
+        .form-input {
+            width: 100%; padding: 15px; margin-bottom: 15px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,0,60,0.3);
+            border-radius: 10px;
+            color: #fff; font-size: 16px; font-family: 'Montserrat', sans-serif;
+        }
+        .form-input:focus { outline: none; border-color: var(--neon-red); box-shadow: 0 0 10px rgba(255,0,60,0.3); }
+
+        .submit-btn {
+            width: 100%; padding: 18px;
+            background: var(--neon-red); color: #fff;
+            border: none; border-radius: 10px;
+            font-size: 18px; font-weight: 900; font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 0 20px rgba(255,0,60,0.5);
+            cursor: pointer;
+        }
+        .submit-btn:active { box-shadow: 0 0 30px var(--neon-red); transform: scale(0.98); }
+
+    </style>
+</head>
+<body>
+
+    <div class="smoke-container" id="smoke-container">
+        <div class="smoke"></div>
+        <div class="smoke"></div>
+        <div class="smoke"></div>
+    </div>
+
+    <div id="welcome-screen">
+        <h1 class="logo"><span class="text-huss">HUSS</span><span class="text-club">CLUB</span></h1>
+        <button class="enter-btn" onclick="enterApp()">Войти</button>
+    </div>
+
+    <div id="main-app">
+        <header>
+            <div class="menu-icon" onclick="toggleMenu()">
+                <span></span><span></span><span></span>
+            </div>
+            <div class="header-title">HUSS CLUB</div>
+        </header>
+
+        <div id="sidebar">
+            <div class="close-btn" onclick="toggleMenu()">×</div>
+            <div class="nav-link" onclick="showSection('booking')">💻 Бронь ПК</div>
+            <div class="nav-link" onclick="showSection('tournaments')">🏆 Турниры</div>
+            <div class="nav-link" onclick="showSection('contacts')">📍 Контакты</div>
+        </div>
+
+        <div id="booking" class="content-section active">
+            <div class="section-title">Выбери тариф</div>
+            <div class="grid-buttons" id="tariff-buttons">
+                <div class="neon-btn" onclick="selectTariff('STANDART', this)">STANDART</div>
+                <div class="neon-btn" onclick="selectTariff('VIP ROOM', this)">VIP ROOM</div>
+                <div class="neon-btn" onclick="selectTariff('PS5 ZONE', this)">PS5 ZONE</div>
+                <div class="neon-btn" onclick="selectTariff('BOOT CAMP', this)">BOOT CAMP</div>
+            </div>
+
+            <div class="section-title">Время игры</div>
+            <div class="grid-buttons" id="time-buttons">
+                <div class="neon-btn" onclick="selectTime('1 час', this)">1 час</div>
+                <div class="neon-btn" onclick="selectTime('3 часа', this)">3 часа</div>
+                <div class="neon-btn" onclick="selectTime('5 часов', this)">5 часов</div>
+                <div class="neon-btn" onclick="selectTime('Ночь', this)">Ночь</div>
+            </div>
+
+            <div class="section-title">Твои данные</div>
+            <input type="text" class="form-input" id="client-name" placeholder="Имя или Никнейм">
+            <input type="tel" class="form-input" id="client-phone" placeholder="Телефон">
+            
+            <button class="submit-btn" onclick="submitBooking()">Забронировать</button>
+        </div>
+
+        <div id="tournaments" class="content-section">
+            <div class="section-title">Ближайшие турниры</div>
+            <p style="color: #aaa;">Скоро здесь появятся афиши турниров по CS2 и Dota 2. Следи за обновлениями!</p>
+        </div>
+
+        <div id="contacts" class="content-section">
+            <div class="section-title">Как нас найти</div>
+            <p style="color: #aaa; line-height: 1.6;">
+                📍 г. Москва, ул. Геймерская, д. 1<br><br>
+                🕒 Работаем 24/7<br><br>
+                📞 +7 (999) 123-45-67
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        if (tg) { tg.ready(); tg.expand(); }
+
+        const BOT_TOKEN = "8717110711:AAEYx8S8dnn6103TmdT8xh2SEaGPgAw71Ao";
+        const MY_CHAT_ID = "7948923802";
+
+        function enterApp() {
+            document.getElementById('welcome-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            if (tg) tg.HapticFeedback.impactOccurred('medium');
+        }
+
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            toggleMenu(); 
+        }
+
+        let selectedTariff = null;
+        let selectedTime = null;
+
+        function selectTariff(name, element) {
+            document.querySelectorAll('#tariff-buttons .neon-btn').forEach(btn => btn.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedTariff = name;
+            if (tg) tg.HapticFeedback.impactOccurred('light');
+        }
+
+        function selectTime(time, element) {
+            document.querySelectorAll('#time-buttons .neon-btn').forEach(btn => btn.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedTime = time;
+            if (tg) tg.HapticFeedback.impactOccurred('light');
+        }
+
+        function submitBooking() {
+            const name = document.getElementById('client-name').value.trim();
+            const phone = document.getElementById('client-phone').value.trim();
+
+            if (!selectedTariff || !selectedTime) {
+                if (tg) tg.showAlert('Выбери тариф и время!'); else alert('Выбери тариф и время!');
+                return;
+            }
+            if (!name || !phone) {
+                if (tg) tg.showAlert('Введи имя и телефон!'); else alert('Введи имя и телефон!');
+                return;
+            }
+
+            const orderText = `🔥 НОВАЯ БРОНЬ HUSS CLUB!\n\n💻 Тариф: ${selectedTariff}\n⏰ Время: ${selectedTime}\n👤 Имя: ${name}\n📞 Тел: ${phone}`;
+            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${MY_CHAT_ID}&text=${encodeURIComponent(orderText)}`;
+
+            if (tg) tg.showAlert('Отправляем бронь...');
+
+            fetch(url)
+                .then(response => {
+                    if (response.ok) {
+                        if (tg) tg.showAlert('Бронь успешно создана! Ждем тебя.');
+                        if (tg) tg.HapticFeedback.notificationOccurred('success');
+                        document.getElementById('client-name').value = '';
+                        document.getElementById('client-phone').value = '';
+                        document.querySelectorAll('.neon-btn').forEach(btn => btn.classList.remove('selected'));
+                        selectedTariff = null; selectedTime = null;
+                    } else {
+                        if (tg) tg.showAlert('Ошибка. Попробуй позже.');
+                    }
+                })
+                .catch(error => {
+                    if (tg) tg.showAlert('Ошибка сети.');
+                });
+        }
+
+        window.addEventListener('scroll', () => {
+            const scrolled = window.scrollY;
+            const smokes = document.querySelectorAll('.smoke');
+            smokes.forEach((smoke, index) => {
+                const speed = (index + 1) * 0.5;
+                smoke.style.transform = `translateY(-${scrolled * speed}px) scale(${1 + scrolled * 0.001})`;
+            });
+        });
+    </script>
+</body>
+</html>
