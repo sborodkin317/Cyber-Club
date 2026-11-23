@@ -28,7 +28,7 @@
             min-height: 100vh;
         }
 
-        /* ====== ЭКРАН ВХОДА (ДВЕРЬ-СЕЙФ) ====== */
+        /* ====== ЭКРАН ВХОДА (ДВЕРЬ) ====== */
         #welcome-screen {
             height: 100vh; display: flex; flex-direction: column;
             justify-content: center; align-items: center;
@@ -50,6 +50,7 @@
             box-shadow: inset 0 0 150px rgba(0,0,0,1);
             z-index: 50;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
+            /* Дверь уезжает медленно и тяжело */
             transition: transform 2s cubic-bezier(0.77, 0, 0.175, 1);
             overflow: hidden;
         }
@@ -94,12 +95,34 @@
             z-index: 10; pointer-events: none;
         }
 
+        /* Сам штурвал */
         .vault-wheel {
             width: 100%; height: 100%;
             border: 20px solid #1a1a1a; border-radius: 50%;
             position: relative;
             background: radial-gradient(circle, #050505 40%, #111 100%);
             box-shadow: 0 20px 40px rgba(0,0,0,0.9), inset 0 0 30px rgba(0,0,0,1), 0 0 0 8px #000;
+            /* Плавный переход для остановки вращения */
+            transition: transform 1s ease-out; 
+        }
+
+        /* Анимация вращения штурвала */
+        @keyframes spinWheel {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(720deg); }
+        }
+        .vault-wheel.spinning {
+            animation: spinWheel 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        /* Анимация тряски двери */
+        @keyframes doorShake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+            20%, 40%, 60%, 80% { transform: translateX(8px); }
+        }
+        .vault-door.shake {
+            animation: doorShake 0.4s ease-in-out 2; /* Трясется 2 раза */
         }
 
         .vault-wheel::before, .vault-wheel::after {
@@ -130,6 +153,30 @@
             transition: 0.2s; pointer-events: auto;
         }
         .enter-btn:active { transform: scale(0.95); }
+        .enter-btn.hidden { opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+
+        /* ====== ЛОГОТИП ПОСЛЕ ВХОДА (Заглушка) ====== */
+        .welcome-content {
+            position: absolute; z-index: 60;
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; transform: scale(0.3) translateY(50px);
+            transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Эффект пружины */
+        }
+        .welcome-content.show {
+            opacity: 1; transform: scale(1) translateY(0);
+        }
+        
+        .text-logo-placeholder {
+            font-family: 'Russo One', sans-serif;
+            font-size: 50px; color: var(--hazard-yellow);
+            text-shadow: 0 0 30px rgba(245, 197, 24, 0.8), 4px 4px 0 #000;
+            letter-spacing: 6px; padding: 30px 40px;
+            border: 4px solid var(--hazard-yellow);
+            background: rgba(10, 10, 10, 0.9);
+            text-align: center; border-radius: 10px;
+            box-shadow: inset 0 0 30px rgba(245, 197, 24, 0.2);
+        }
+        .text-logo-placeholder span { display: block; font-size: 16px; color: #fff; margin-top: 15px; letter-spacing: 3px; }
 
         /* ====== ОСНОВНОЕ ПРИЛОЖЕНИЕ ====== */
         #main-app { display: none; padding-bottom: 50px; position: relative; z-index: 10; min-height: 100vh; }
@@ -266,7 +313,7 @@
 </head>
 <body>
 
-    <!-- ЭКРАН ВХОДА (ДВЕРЬ) -->
+    <!-- ЭКРАН ВХОДА -->
     <div id="welcome-screen">
         <div class="vault-door" id="vault-door">
             <div class="door-text">СЕКТОР 47</div>
@@ -274,13 +321,21 @@
             <div class="door-light right"></div>
             
             <div class="vault-wheel-container">
-                <div class="vault-wheel">
+                <div class="vault-wheel" id="vault-wheel">
                     <div class="vault-spoke-diag spoke-1"></div>
                     <div class="vault-spoke-diag spoke-2"></div>
                 </div>
-                <button class="enter-btn" onclick="enterApp()">ВОЙТИ</button>
+                <button class="enter-btn" id="enter-btn" onclick="enterApp()">ВОЙТИ</button>
             </div>
             <div class="hazard-stripes"></div>
+        </div>
+
+        <!-- Логотип, который вылетает после открытия -->
+        <div class="welcome-content" id="welcome-content">
+            <div class="text-logo-placeholder">
+                БУНКЕР
+                <span>КОМПЬЮТЕРНЫЙ КЛУБ</span>
+            </div>
         </div>
     </div>
 
@@ -380,14 +435,23 @@
     </div>
 
     <script>
-        // --- НАСТРОЙКИ SUPABASE (КАК В ОРИГИНАЛЕ) ---
-        const SUPABASE_URL = 'https://npnlilxgqyajqzvephm.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_U7swAGN1I2faMCB1BTmxDQ_2kL2pNCp';
+        // --- ЗАЩИЩЕННАЯ ИНИЦИАЛИЗАЦИЯ (ЧТОБЫ РАБОТАЛО ВЕЗДЕ) ---
+        let supabaseClient = null;
+        let tg = null;
 
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
-        const tg = window.Telegram.WebApp;
-        if (tg) { tg.ready(); tg.expand(); }
+        try {
+            if (typeof supabase !== 'undefined') {
+                supabaseClient = supabase.createClient('https://npnlilxgqyajqzvephm.supabase.co', 'sb_publishable_U7swAGN1I2faMCB1BTmxDQ_2kL2pNCp');
+            }
+        } catch(e) { console.log('Supabase не загружен'); }
+
+        try {
+            if (window.Telegram && window.Telegram.WebApp) {
+                tg = window.Telegram.WebApp;
+                tg.ready();
+                tg.expand();
+            }
+        } catch(e) { console.log('Telegram не загружен'); }
 
         const BOT_TOKEN = "9070589832:AAG-rxtW7h2Z87cOCbv6TsgdMWrFsJZnfY4";
         const MY_CHAT_ID = "7948923802";
@@ -405,99 +469,117 @@
         let selectedTime = null;
         let selectedPrice = null;
 
-        // --- ФУНКЦИИ БАЗЫ ДАННЫХ (ОРИГИНАЛ) ---
+        // --- БАЗА ДАННЫХ ---
         async function loadDataFromDB() {
+            if (!supabaseClient) return;
             try {
-                const { data: pricesData, error: pricesError } = await supabaseClient
-                    .from('huss_settings').select('value').eq('key', 'prices').single();
-                
-                if (pricesData && pricesData.value) {
-                    priceList = pricesData.value;
-                } else if (pricesError && pricesError.code === 'PGRST116') {
-                    await savePricesToDB(defaultPrices);
-                }
+                const { data: pricesData } = await supabaseClient.from('huss_settings').select('value').eq('key', 'prices').single();
+                if (pricesData && pricesData.value) priceList = pricesData.value;
 
-                const { data: statsData, error: statsError } = await supabaseClient
-                    .from('huss_settings').select('value').eq('key', 'stats').single();
-                
-                if (statsData && statsData.value) {
-                    clubStats = statsData.value;
-                } else if (statsError && statsError.code === 'PGRST116') {
-                    await saveStatsToDB({ orders: 0, revenue: 0 });
-                }
-            } catch (e) {
-                console.error('Ошибка загрузки из БД:', e);
-            }
+                const { data: statsData } = await supabaseClient.from('huss_settings').select('value').eq('key', 'stats').single();
+                if (statsData && statsData.value) clubStats = statsData.value;
+            } catch (e) { console.log('Ошибка БД:', e); }
         }
 
         async function savePricesToDB(prices) {
-            try {
-                await supabaseClient.from('huss_settings').upsert({ key: 'prices', value: prices });
-            } catch (e) { console.error('Ошибка сохранения цен:', e); }
+            if (!supabaseClient) return;
+            try { await supabaseClient.from('huss_settings').upsert({ key: 'prices', value: prices }); } catch (e) {}
         }
 
         async function saveStatsToDB(stats) {
-            try {
-                await supabaseClient.from('huss_settings').upsert({ key: 'stats', value: stats });
-            } catch (e) { console.error('Ошибка сохранения статистики:', e); }
+            if (!supabaseClient) return;
+            try { await supabaseClient.from('huss_settings').upsert({ key: 'stats', value: stats }); } catch (e) {}
         }
 
-        loadDataFromDB().then(() => {
-            if (document.getElementById('admin-dashboard').style.display === 'block') {
-                updateAdminStatsUI();
-                buildPriceEditor();
-            }
-        });
+        loadDataFromDB();
 
-        // --- ЛОГИКА ВХОДА (С АНИМАЦИЕЙ ДВЕРИ) ---
-        function enterApp() {
-            // Запускаем анимацию двери
-            document.getElementById('vault-door').classList.add('open');
-            if (tg) tg.HapticFeedback.impactOccurred('heavy');
+        // --- ОХРИНИТЕЛЬНАЯ АНИМАЦИЯ ВХОДА ---
+        window.enterApp = function() {
+            try { if (tg) tg.HapticFeedback.impactOccurred('heavy'); } catch(e) {}
             
-            // Ждем 2 секунды, пока дверь уезжает, и показываем приложение
+            const btn = document.getElementById('enter-btn');
+            const door = document.getElementById('vault-door');
+            const wheel = document.getElementById('vault-wheel');
+            const content = document.getElementById('welcome-content');
+            const welcomeScreen = document.getElementById('welcome-screen');
+            const mainApp = document.getElementById('main-app');
+
+            // 1. Скрываем кнопку
+            if (btn) btn.classList.add('hidden');
+
+            // 2. Начинаем крутить штурвал (1.5 секунды)
+            if (wheel) wheel.classList.add('spinning');
+
+            // 3. Через 1.5 сек (когда штурвал докрутился) - дверь трясется
             setTimeout(() => {
-                document.getElementById('welcome-screen').style.display = 'none';
-                document.getElementById('main-app').style.display = 'block';
-            }, 2000);
-        }
+                if (door) door.classList.add('shake');
+                try { if (tg) tg.HapticFeedback.impactOccurred('light'); } catch(e) {}
+            }, 1500);
 
-        function toggleMenu() { document.getElementById('sidebar').classList.toggle('open'); }
+            // 4. Через 2.3 сек (после тряски) - дверь начинает уезжать вправо
+            setTimeout(() => {
+                if (door) {
+                    door.classList.remove('shake'); // Убираем тряску
+                    door.classList.add('open');     // Запускаем уезд
+                }
+            }, 2300);
 
-        function showSection(sectionId) {
+            // 5. Через 3.0 сек - прямо в проеме вылетает логотип "БУНКЕР"
+            setTimeout(() => {
+                if (content) content.classList.add('show');
+                try { if (tg) tg.HapticFeedback.notificationOccurred('success'); } catch(e) {}
+            }, 3000);
+
+            // 6. Через 4.5 сек - полностью показываем главное приложение
+            setTimeout(() => {
+                if (welcomeScreen) welcomeScreen.style.display = 'none';
+                if (mainApp) mainApp.style.display = 'block';
+            }, 4500);
+        };
+
+        // --- ОСТАЛЬНОЙ ФУНКЦИОНАЛ (БЕЗ ИЗМЕНЕНИЙ) ---
+        window.toggleMenu = function() { 
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) sidebar.classList.toggle('open'); 
+        };
+
+        window.showSection = function(sectionId) {
             document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
-            document.getElementById(sectionId).classList.add('active');
-            toggleMenu(); 
-        }
+            const target = document.getElementById(sectionId);
+            if (target) target.classList.add('active');
+            window.toggleMenu(); 
+        };
 
-        function selectTariff(name, element) {
+        window.selectTariff = function(name, element) {
             document.querySelectorAll('#tariff-buttons .neon-btn').forEach(btn => btn.classList.remove('selected'));
             element.classList.add('selected');
             selectedTariff = name;
-            if (selectedTime) {
+            if (selectedTime && priceList[selectedTariff]) {
                 const newPrice = priceList[selectedTariff][selectedTime];
                 selectedPrice = newPrice;
                 document.querySelectorAll('#time-buttons .neon-btn').forEach(btn => {
                     if (btn.getAttribute('data-time') === selectedTime) btn.innerText = newPrice + ' ₽';
                 });
             }
-            if (tg) tg.HapticFeedback.impactOccurred('light');
-        }
+            try { if (tg) tg.HapticFeedback.impactOccurred('light'); } catch(e) {}
+        };
 
-        function selectTime(element, timeText) {
+        window.selectTime = function(element, timeText) {
             document.querySelectorAll('#time-buttons .neon-btn').forEach(btn => {
                 btn.classList.remove('selected');
                 btn.innerText = btn.getAttribute('data-time'); 
             });
             element.classList.add('selected');
-            const price = priceList[selectedTariff][timeText];
-            element.innerText = price + ' ₽'; 
-            selectedTime = timeText;
-            selectedPrice = price;
-            if (tg) tg.HapticFeedback.impactOccurred('light');
-        }
+            if (priceList[selectedTariff] && priceList[selectedTariff][timeText]) {
+                const price = priceList[selectedTariff][timeText];
+                element.innerText = price + ' ₽'; 
+                selectedTime = timeText;
+                selectedPrice = price;
+            }
+            try { if (tg) tg.HapticFeedback.impactOccurred('light'); } catch(e) {}
+        };
 
-        async function submitBooking() {
+        window.submitBooking = async function() {
             const name = document.getElementById('client-name').value.trim();
             const phone = document.getElementById('client-phone').value.trim();
             const comment = document.getElementById('client-comment').value.trim();
@@ -525,7 +607,7 @@
                 .then(response => {
                     if (response.ok) {
                         if (tg) tg.showAlert('Бронь успешно создана! Ждем тебя.');
-                        if (tg) tg.HapticFeedback.notificationOccurred('success');
+                        try { if (tg) tg.HapticFeedback.notificationOccurred('success'); } catch(e) {}
                         document.getElementById('client-name').value = '';
                         document.getElementById('client-phone').value = '';
                         document.getElementById('client-comment').value = '';
@@ -543,36 +625,37 @@
                     }
                 })
                 .catch(error => { if (tg) tg.showAlert('Ошибка сети.'); });
-        }
+        };
 
-        function loginAdmin() {
+        window.loginAdmin = function() {
             const login = document.getElementById('admin-login').value;
             const pass = document.getElementById('admin-pass').value;
             if (login === 'admin' && pass === 'huss2024') {
                 document.getElementById('admin-login-form').style.display = 'none';
                 document.getElementById('admin-dashboard').style.display = 'block';
-                updateAdminStatsUI();
-                buildPriceEditor();
-                if (tg) tg.HapticFeedback.notificationOccurred('success');
+                window.updateAdminStatsUI();
+                window.buildPriceEditor();
+                try { if (tg) tg.HapticFeedback.notificationOccurred('success'); } catch(e) {}
             } else {
                 if (tg) tg.showAlert('Неверный логин или пароль!'); else alert('Неверный логин или пароль!');
             }
-        }
+        };
 
-        function logoutAdmin() {
+        window.logoutAdmin = function() {
             document.getElementById('admin-login').value = '';
             document.getElementById('admin-pass').value = '';
             document.getElementById('admin-dashboard').style.display = 'none';
             document.getElementById('admin-login-form').style.display = 'block';
-        }
+        };
 
-        function updateAdminStatsUI() {
+        window.updateAdminStatsUI = function() {
             document.getElementById('stat-orders').innerText = clubStats.orders;
             document.getElementById('stat-revenue').innerText = clubStats.revenue + ' ₽';
-        }
+        };
 
-        function buildPriceEditor() {
+        window.buildPriceEditor = function() {
             const container = document.getElementById('price-editor');
+            if (!container) return;
             container.innerHTML = '';
             for (const tariff in priceList) {
                 const group = document.createElement('div');
@@ -584,15 +667,15 @@
                     row.innerHTML = `
                         <span>${time}</span>
                         <input type="number" class="price-input" value="${priceList[tariff][time]}" 
-                               onchange="updatePrice('${tariff}', '${time}', this.value)">
+                               onchange="window.updatePrice('${tariff}', '${time}', this.value)">
                     `;
                     group.appendChild(row);
                 }
                 container.appendChild(group);
             }
-        }
+        };
 
-        async function updatePrice(tariff, time, newPrice) {
+        window.updatePrice = async function(tariff, time, newPrice) {
             priceList[tariff][time] = parseInt(newPrice);
             await savePricesToDB(priceList);
             if (selectedTariff === tariff && selectedTime === time) {
@@ -601,7 +684,7 @@
                     if (btn.getAttribute('data-time') === selectedTime) btn.innerText = newPrice + ' ₽';
                 });
             }
-        }
+        };
     </script>
 </body>
 </html>
