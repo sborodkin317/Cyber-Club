@@ -5,275 +5,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HUSS CLUB</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Подключаем Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
-        :root {
-            --neon-red: #ff003c;
-            --dark-bg: #050505;
-        }
-
+        :root { --neon-red: #ff003c; --dark-bg: #050505; }
         * { box-sizing: border-box; }
-
-        body { 
-            font-family: 'Montserrat', sans-serif; 
-            background-color: var(--dark-bg);
-            color: #fff;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            user-select: none;
-        }
-
-        /* --- ЭФФЕКТ ДЫМА --- */
-        .smoke-container {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
-            overflow: hidden;
-            pointer-events: none;
-        }
-        
-        .smoke {
-            position: absolute;
-            bottom: -150px;
-            width: 250px; height: 250px;
-            background: radial-gradient(circle, rgba(200,200,200,0.25) 0%, rgba(200,200,200,0) 60%);
-            border-radius: 50%;
-            filter: blur(20px);
-            animation: floatUp 12s infinite linear;
-            transition: transform 0.1s ease-out;
-        }
-
-        .smoke.red {
-            background: radial-gradient(circle, rgba(255,0,60,0.3) 0%, rgba(255,0,60,0) 60%);
-            filter: blur(25px);
-        }
-
-        .smoke:nth-child(1) { left: 5%; animation-duration: 14s; animation-delay: 0s;}
-        .smoke:nth-child(2) { left: 25%; animation-duration: 18s; animation-delay: 2s;}
-        .smoke:nth-child(3) { left: 50%; animation-duration: 15s; animation-delay: 4s;}
-        .smoke:nth-child(4) { left: 75%; animation-duration: 20s; animation-delay: 1s;}
-        .smoke:nth-child(5) { left: 90%; animation-duration: 13s; animation-delay: 5s;}
-        .smoke:nth-child(6) { left: 15%; animation-duration: 16s; animation-delay: 3s;}
-        .smoke:nth-child(7) { left: 65%; animation-duration: 19s; animation-delay: 0s;}
-
-        @keyframes floatUp {
-            0% { transform: translateY(0) scale(1); opacity: 0; }
-            20% { opacity: 1; }
-            80% { opacity: 0.8; }
-            100% { transform: translateY(-120vh) scale(1.5); opacity: 0; }
-        }
-
-        /* --- ЭКРАН ПРИВЕТСТВИЯ --- */
-        #welcome-screen {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            z-index: 10;
-        }
-        
-        .logo { font-size: 42px; font-weight: 900; margin: 0; line-height: 1; letter-spacing: 2px; text-align: center;}
-        .text-huss { 
-            color: #fff;
-            text-shadow: 0 0 5px #fff, 0 0 10px var(--neon-red), 0 0 20px var(--neon-red), 0 0 40px var(--neon-red);
-        }
-        .text-club { color: #fff; font-weight: 700; font-size: 30px; display: block; margin-top: 5px;}
-
-        .enter-btn {
-            margin-top: 50px;
-            background: transparent;
-            color: var(--neon-red);
-            border: 2px solid var(--neon-red);
-            padding: 15px 40px;
-            font-size: 18px;
-            font-weight: 700;
-            border-radius: 8px;
-            cursor: pointer;
-            text-transform: uppercase;
-            box-shadow: 0 0 10px rgba(255,0,60,0.3), inset 0 0 10px rgba(255,0,60,0.3);
-            transition: 0.3s;
-            z-index: 20;
-        }
-        .enter-btn:active {
-            background: var(--neon-red);
-            color: #fff;
-            box-shadow: 0 0 20px var(--neon-red);
-        }
-
-        /* --- ОСНОВНОЙ ЭКРАН --- */
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--dark-bg); color: #fff; margin: 0; padding: 0; overflow-x: hidden; user-select: none; }
+        .smoke-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; pointer-events: none; }
+        .smoke { position: absolute; bottom: -150px; width: 250px; height: 250px; background: radial-gradient(circle, rgba(200,200,200,0.25) 0%, rgba(200,200,200,0) 60%); border-radius: 50%; filter: blur(20px); animation: floatUp 12s infinite linear; transition: transform 0.1s ease-out; }
+        .smoke.red { background: radial-gradient(circle, rgba(255,0,60,0.3) 0%, rgba(255,0,60,0) 60%); filter: blur(25px); }
+        .smoke:nth-child(1) { left: 5%; animation-duration: 14s; animation-delay: 0s; }
+        .smoke:nth-child(2) { left: 25%; animation-duration: 18s; animation-delay: 2s; }
+        .smoke:nth-child(3) { left: 50%; animation-duration: 15s; animation-delay: 4s; }
+        .smoke:nth-child(4) { left: 75%; animation-duration: 20s; animation-delay: 1s; }
+        .smoke:nth-child(5) { left: 90%; animation-duration: 13s; animation-delay: 5s; }
+        .smoke:nth-child(6) { left: 15%; animation-duration: 16s; animation-delay: 3s; }
+        .smoke:nth-child(7) { left: 65%; animation-duration: 19s; animation-delay: 0s; }
+        @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 0.8; } 100% { transform: translateY(-120vh) scale(1.5); opacity: 0; } }
+        #welcome-screen { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; z-index: 10; }
+        .logo { font-size: 42px; font-weight: 900; margin: 0; line-height: 1; letter-spacing: 2px; text-align: center; }
+        .text-huss { color: #fff; text-shadow: 0 0 5px #fff, 0 0 10px var(--neon-red), 0 0 20px var(--neon-red), 0 0 40px var(--neon-red); }
+        .text-club { color: #fff; font-weight: 700; font-size: 30px; display: block; margin-top: 5px; }
+        .enter-btn { margin-top: 50px; background: transparent; color: var(--neon-red); border: 2px solid var(--neon-red); padding: 15px 40px; font-size: 18px; font-weight: 700; border-radius: 8px; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 10px rgba(255,0,60,0.3), inset 0 0 10px rgba(255,0,60,0.3); transition: 0.3s; z-index: 20; }
+        .enter-btn:active { background: var(--neon-red); color: #fff; box-shadow: 0 0 20px var(--neon-red); }
         #main-app { display: none; padding-bottom: 50px; position: relative; z-index: 10; }
-        
-        header {
-            display: flex;
-            align-items: center;
-            padding: 20px;
-            position: sticky;
-            top: 0;
-            background: rgba(5,5,5,0.8);
-            backdrop-filter: blur(10px);
-            z-index: 100;
-            border-bottom: 1px solid rgba(255,0,60,0.2);
-        }
-        .menu-icon {
-            width: 30px; height: 20px;
-            display: flex; flex-direction: column; justify-content: space-between;
-            cursor: pointer;
-        }
+        header { display: flex; align-items: center; padding: 20px; position: sticky; top: 0; background: rgba(5,5,5,0.8); backdrop-filter: blur(10px); z-index: 100; border-bottom: 1px solid rgba(255,0,60,0.2); }
+        .menu-icon { width: 30px; height: 20px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; }
         .menu-icon span { width: 100%; height: 3px; background: var(--neon-red); box-shadow: 0 0 5px var(--neon-red); }
-        .header-title { margin-left: 20px; font-size: 20px; font-weight: 900; letter-spacing: 1px;}
-        
-        #sidebar {
-            position: fixed;
-            top: 0; left: -250px;
-            width: 250px; height: 100vh;
-            background: rgba(10,10,10,0.95);
-            backdrop-filter: blur(15px);
-            border-right: 1px solid var(--neon-red);
-            z-index: 200;
-            transition: 0.3s ease-in-out;
-            padding: 20px;
-            box-shadow: 5px 0 20px rgba(255,0,60,0.1);
-        }
+        .header-title { margin-left: 20px; font-size: 20px; font-weight: 900; letter-spacing: 1px; }
+        #sidebar { position: fixed; top: 0; left: -250px; width: 250px; height: 100vh; background: rgba(10,10,10,0.95); backdrop-filter: blur(15px); border-right: 1px solid var(--neon-red); z-index: 200; transition: 0.3s ease-in-out; padding: 20px; box-shadow: 5px 0 20px rgba(255,0,60,0.1); overflow-y: auto; }
         #sidebar.open { left: 0; }
-        .close-btn { font-size: 30px; color: var(--neon-red); cursor: pointer; margin-bottom: 30px; text-shadow: 0 0 10px var(--neon-red);}
-        
-        .nav-link {
-            display: flex;
-            align-items: center;
-            color: #fff;
-            text-decoration: none;
-            font-size: 18px;
-            font-weight: 700;
-            padding: 15px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            cursor: pointer;
-        }
-        
-        .nav-icon {
-            width: 24px; height: 24px; margin-right: 15px;
-            stroke: var(--neon-red); stroke-width: 2; fill: none;
-            filter: drop-shadow(0 0 5px var(--neon-red));
-            transition: 0.2s;
-        }
-
+        .close-btn { font-size: 30px; color: var(--neon-red); cursor: pointer; margin-bottom: 30px; text-shadow: 0 0 10px var(--neon-red); }
+        .nav-link { display: flex; align-items: center; color: #fff; text-decoration: none; font-size: 18px; font-weight: 700; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
+        .nav-icon { width: 24px; height: 24px; margin-right: 15px; stroke: var(--neon-red); stroke-width: 2; fill: none; filter: drop-shadow(0 0 5px var(--neon-red)); transition: 0.2s; }
         .nav-link:active .nav-icon { filter: drop-shadow(0 0 10px var(--neon-red)); stroke: #fff; }
         .nav-link:active { color: var(--neon-red); }
-
         .content-section { display: none; padding: 20px; }
         .content-section.active { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
         .section-title { font-size: 24px; font-weight: 900; color: var(--neon-red); text-shadow: 0 0 10px rgba(255,0,60,0.5); margin-bottom: 20px; text-transform: uppercase; }
-        
-        /* --- БРОНИРОВАНИЕ --- */
         .grid-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
-        
-        .neon-btn {
-            background: rgba(255,0,60,0.1);
-            color: var(--neon-red);
-            border: 1px solid var(--neon-red);
-            padding: 15px 5px;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 700;
-            font-family: 'Montserrat', sans-serif;
-            cursor: pointer;
-            text-align: center;
-            box-shadow: 0 0 10px rgba(255,0,60,0.1);
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 54px;
-        }
-        
+        .neon-btn { background: rgba(255,0,60,0.1); color: var(--neon-red); border: 1px solid var(--neon-red); padding: 15px 5px; border-radius: 10px; font-size: 16px; font-weight: 700; font-family: 'Montserrat', sans-serif; cursor: pointer; text-align: center; box-shadow: 0 0 10px rgba(255,0,60,0.1); transition: 0.2s; display: flex; align-items: center; justify-content: center; min-height: 54px; }
         .full-width { grid-column: 1 / -1; }
-
-        .neon-btn.selected { 
-            background: var(--neon-red); 
-            color: #fff; 
-            box-shadow: 0 0 20px var(--neon-red); 
-        }
-
-        .form-input {
-            width: 100%; padding: 15px; margin-bottom: 15px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,0,60,0.3);
-            border-radius: 10px;
-            color: #fff; font-size: 16px; font-family: 'Montserrat', sans-serif;
-        }
+        .neon-btn.selected { background: var(--neon-red); color: #fff; box-shadow: 0 0 20px var(--neon-red); }
+        .form-input { width: 100%; padding: 15px; margin-bottom: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,0,60,0.3); border-radius: 10px; color: #fff; font-size: 16px; font-family: 'Montserrat', sans-serif; }
         .form-input:focus { outline: none; border-color: var(--neon-red); box-shadow: 0 0 10px rgba(255,0,60,0.3); }
-
-        .submit-btn {
-            width: 100%; padding: 18px;
-            background: var(--neon-red); color: #fff;
-            border: none; border-radius: 10px;
-            font-size: 18px; font-weight: 900; font-family: 'Montserrat', sans-serif;
-            text-transform: uppercase; letter-spacing: 1px;
-            box-shadow: 0 0 20px rgba(255,0,60,0.5);
-            cursor: pointer;
-        }
+        .submit-btn { width: 100%; padding: 18px; background: var(--neon-red); color: #fff; border: none; border-radius: 10px; font-size: 18px; font-weight: 900; font-family: 'Montserrat', sans-serif; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 0 20px rgba(255,0,60,0.5); cursor: pointer; }
         .submit-btn:active { box-shadow: 0 0 30px var(--neon-red); transform: scale(0.98); }
-
-        /* --- ОБОРУДОВАНИЕ --- */
         .equip-block { margin-bottom: 30px; }
-        .equip-header {
-            background: var(--neon-red); color: #000; text-align: center;
-            font-weight: 900; padding: 10px; font-size: 16px; text-transform: uppercase;
-            letter-spacing: 2px; border-radius: 6px; margin-bottom: 15px;
-            box-shadow: 0 0 15px rgba(255,0,60,0.5);
-        }
-        .spec-row {
-            display: flex; border: 1px solid var(--neon-red); border-radius: 6px;
-            margin-bottom: 8px; background: rgba(20,20,20,0.8); overflow: hidden;
-        }
-        .spec-label {
-            width: 40%; padding: 12px 10px; border-right: 1px solid var(--neon-red);
-            font-size: 11px; font-weight: 700; text-transform: uppercase;
-            display: flex; align-items: center; color: #fff;
-        }
-        .spec-value {
-            width: 60%; padding: 12px 10px; text-align: right; font-size: 13px;
-            font-weight: 700; display: flex; align-items: center; justify-content: flex-end; color: #fff;
-        }
+        .equip-header { background: var(--neon-red); color: #000; text-align: center; font-weight: 900; padding: 10px; font-size: 16px; text-transform: uppercase; letter-spacing: 2px; border-radius: 6px; margin-bottom: 15px; box-shadow: 0 0 15px rgba(255,0,60,0.5); }
+        .spec-row { display: flex; border: 1px solid var(--neon-red); border-radius: 6px; margin-bottom: 8px; background: rgba(20,20,20,0.8); overflow: hidden; }
+        .spec-label { width: 40%; padding: 12px 10px; border-right: 1px solid var(--neon-red); font-size: 11px; font-weight: 700; text-transform: uppercase; display: flex; align-items: center; color: #fff; }
+        .spec-value { width: 60%; padding: 12px 10px; text-align: right; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: flex-end; color: #fff; }
         .spec-value .red-text { color: var(--neon-red); text-shadow: 0 0 5px rgba(255,0,60,0.5); margin-left: 5px; }
-
-        /* --- БЛОК ПАРТНЕРОВ --- */
-        .partners-block {
-            margin-top: 40px; border: 2px solid var(--neon-red); border-radius: 12px;
-            padding: 20px; text-align: center;
-            box-shadow: 0 0 15px rgba(255,0,60,0.2), inset 0 0 15px rgba(255,0,60,0.1);
-            background: rgba(15, 15, 15, 0.9);
-        }
-        .partners-title {
-            color: #fff; font-size: 12px; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 2px; margin-bottom: 15px; opacity: 0.7;
-        }
+        .partners-block { margin-top: 40px; border: 2px solid var(--neon-red); border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 0 15px rgba(255,0,60,0.2), inset 0 0 15px rgba(255,0,60,0.1); background: rgba(15, 15, 15, 0.9); }
+        .partners-title { color: #fff; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; opacity: 0.7; }
         .partners-list { display: flex; justify-content: center; gap: 30px; align-items: center; }
-        .partner-logo {
-            color: var(--neon-red); font-size: 22px; font-weight: 900; text-transform: uppercase;
-            letter-spacing: 2px; text-shadow: 0 0 5px var(--neon-red), 0 0 15px var(--neon-red);
-        }
-
-        /* --- АДМИН ПАНЕЛЬ --- */
-        .admin-box {
-            background: rgba(20, 20, 20, 0.9);
-            border: 1px solid var(--neon-red);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-        .admin-stat {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding: 10px 0;
-            font-size: 14px;
-        }
+        .partner-logo { color: var(--neon-red); font-size: 22px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 5px var(--neon-red), 0 0 15px var(--neon-red); }
+        .admin-box { background: rgba(20, 20, 20, 0.9); border: 1px solid var(--neon-red); border-radius: 12px; padding: 20px; margin-top: 20px; }
+        .admin-stat { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 10px 0; font-size: 14px; }
+        .price-group { margin-bottom: 20px; }
+        .price-group h4 { color: var(--neon-red); margin: 10px 0; text-transform: uppercase; }
+        .price-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .price-row span { font-size: 13px; color: #ccc; }
+        .price-input { width: 80px; padding: 5px 10px; background: #000; color: #fff; border: 1px solid rgba(255,0,60,0.5); border-radius: 5px; text-align: right; font-family: 'Montserrat', sans-serif; }
     </style>
 </head>
 <body>
@@ -296,32 +93,11 @@
 
         <div id="sidebar">
             <div class="close-btn" onclick="toggleMenu()">×</div>
-            
-            <div class="nav-link" onclick="showSection('booking')">
-                <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2" ry="2"></rect><line x1="2" y1="20" x2="22" y2="20"></line></svg>
-                Бронь ПК
-            </div>
-            
-            <div class="nav-link" onclick="showSection('equipment')">
-                <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-                Оборудование
-            </div>
-            
-            <div class="nav-link" onclick="showSection('tournaments')">
-                <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
-                Турниры
-            </div>
-            
-            <div class="nav-link" onclick="showSection('contacts')">
-                <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                Контакты
-            </div>
-
-            <!-- НОВАЯ КНОПКА АДМИНКИ -->
-            <div class="nav-link" onclick="showSection('admin')" style="margin-top: 20px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 20px;">
-                <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                Админ-панель
-            </div>
+            <div class="nav-link" onclick="showSection('booking')"><svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2" ry="2"></rect><line x1="2" y1="20" x2="22" y2="20"></line></svg>Бронь ПК</div>
+            <div class="nav-link" onclick="showSection('equipment')"><svg class="nav-icon" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>Оборудование</div>
+            <div class="nav-link" onclick="showSection('tournaments')"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>Турниры</div>
+            <div class="nav-link" onclick="showSection('contacts')"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>Контакты</div>
+            <div class="nav-link" onclick="showSection('admin')" style="margin-top: 20px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 20px;"><svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>Админ-панель</div>
         </div>
 
         <div id="booking" class="content-section active">
@@ -346,7 +122,6 @@
             <input type="text" class="form-input" id="client-name" placeholder="Имя или Никнейм">
             <input type="tel" class="form-input" id="client-phone" placeholder="Телефон">
             <input type="text" class="form-input" id="client-comment" placeholder="Комментарий (нас 5, рядом и т.д.)">
-            
             <button class="submit-btn" onclick="submitBooking()">Забронировать</button>
         </div>
 
@@ -375,74 +150,108 @@
 
         <div id="contacts" class="content-section">
             <div class="section-title">Как нас найти</div>
-            <p style="color: #aaa; line-height: 1.6;">
-                📍 г. Москва, ул. Геймерская, д. 1<br><br>
-                🕒 Работаем 24/7<br><br>
-                📞 +7 (999) 123-45-67
-            </p>
+            <p style="color: #aaa; line-height: 1.6;">📍 г. Москва, ул. Геймерская, д. 1<br><br>🕒 Работаем 24/7<br><br>📞 +7 (999) 123-45-67</p>
             <div class="partners-block">
                 <div class="partners-title">Наши партнеры</div>
-                <div class="partners-list">
-                    <span class="partner-logo">WIZARU</span>
-                    <span class="partner-logo">WTF</span>
-                </div>
+                <div class="partners-list"><span class="partner-logo">WIZARU</span><span class="partner-logo">WTF</span></div>
             </div>
         </div>
 
-        <!-- РАЗДЕЛ АДМИНКИ -->
         <div id="admin" class="content-section">
-            <div class="section-title">Вход для админа</div>
-            
-            <!-- Форма входа (видна по умолчанию) -->
+            <div class="section-title">Панель управления</div>
             <div id="admin-login-form">
-                <input type="text" class="form-input" id="admin-login" placeholder="Логин (admin)">
-                <input type="password" class="form-input" id="admin-pass" placeholder="Пароль (huss2024)">
+                <input type="text" class="form-input" id="admin-login" placeholder="Логин">
+                <input type="password" class="form-input" id="admin-pass" placeholder="Пароль">
                 <button class="submit-btn" onclick="loginAdmin()">Войти</button>
             </div>
-
-            <!-- Панель управления (скрыта, пока не войдешь) -->
             <div id="admin-dashboard" style="display: none;">
                 <div class="admin-box">
-                    <h3 style="color: var(--neon-red); margin-top: 0; text-align: center;">Успешный вход!</h3>
-                    <p style="text-align: center; color: #aaa; font-size: 14px;">Это демо-версия панели. Здесь владелец сможет:</p>
-                    
-                    <div class="admin-stat">
-                        <span>Заказов сегодня:</span>
-                        <span style="color: var(--neon-red); font-weight: bold;">14</span>
-                    </div>
-                    <div class="admin-stat">
-                        <span>Выручка:</span>
-                        <span style="color: var(--neon-red); font-weight: bold;">3 450 ₽</span>
-                    </div>
-                    <div class="admin-stat">
-                        <span>Статус клуба:</span>
-                        <span style="color: #00ff00; font-weight: bold;">Открыт</span>
-                    </div>
-
-                    <button class="submit-btn" style="margin-top: 20px; background: transparent; border: 1px solid var(--neon-red); color: var(--neon-red);" onclick="logoutAdmin()">Выйти из аккаунта</button>
+                    <h3 style="color: var(--neon-red); margin-top: 0; text-align: center;">Статистика клуба</h3>
+                    <div class="admin-stat"><span>Выполненных броней:</span><span id="stat-orders" style="color: var(--neon-red); font-weight: bold;">0</span></div>
+                    <div class="admin-stat"><span>Общая выручка:</span><span id="stat-revenue" style="color: var(--neon-red); font-weight: bold;">0 ₽</span></div>
                 </div>
+                <div class="admin-box">
+                    <h3 style="color: var(--neon-red); margin-top: 0; text-align: center;">Настройка цен</h3>
+                    <p style="font-size: 12px; color: #aaa; text-align: center; margin-bottom: 15px;">Изменения сохраняются в облаке.</p>
+                    <div id="price-editor"></div>
+                </div>
+                <button class="submit-btn" style="background: transparent; border: 1px solid var(--neon-red); color: var(--neon-red);" onclick="logoutAdmin()">Выйти из аккаунта</button>
             </div>
         </div>
     </div>
 
     <script>
+        // --- НАСТРОЙКИ SUPABASE ---
+        const SUPABASE_URL = 'https://npnlilxgqyajqzvephm.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_U7swAGN1I2faMCB1BTmxDQ_2kL2pNCp';
+
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
         const tg = window.Telegram.WebApp;
         if (tg) { tg.ready(); tg.expand(); }
 
         const BOT_TOKEN = "9070589832:AAG-rxtW7h2Z87cOCbv6TsgdMWrFsJZnfY4";
         const MY_CHAT_ID = "7948923802";
 
-        // Настройка цен
-        const priceList = {
+        const defaultPrices = {
             'STANDART':  { '1 час': 100, '3 часа': 250, '5 часов': 400, 'Всю ночь': 420, 'Весь день': 600 },
             'VIP ROOM':  { '1 час': 120, '3 часа': 360, '5 часов': 600, 'Всю ночь': 500, 'Весь день': 720 },
             'PS5 ZONE':  { '1 час': 300, '3 часа': 800, '5 часов': 1100, 'Всю ночь': 1300, 'Весь день': 1500 },
             'BOOT CAMP': { '1 час': 100, '3 часа': 250, '5 часов': 400, 'Всю ночь': 420, 'Весь день': 600 }
         };
 
+        let priceList = defaultPrices;
+        let clubStats = { orders: 0, revenue: 0 };
         let selectedTariff = 'STANDART'; 
         let selectedTime = null;
         let selectedPrice = null;
+
+        // --- ФУНКЦИИ БАЗЫ ДАННЫХ ---
+        async function loadDataFromDB() {
+            try {
+                // Загружаем цены
+                const { data: pricesData, error: pricesError } = await supabaseClient
+                    .from('huss_settings').select('value').eq('key', 'prices').single();
+                
+                if (pricesData && pricesData.value) {
+                    priceList = pricesData.value;
+                } else if (pricesError && pricesError.code === 'PGRST116') {
+                    await savePricesToDB(defaultPrices);
+                }
+
+                // Загружаем статистику
+                const { data: statsData, error: statsError } = await supabaseClient
+                    .from('huss_settings').select('value').eq('key', 'stats').single();
+                
+                if (statsData && statsData.value) {
+                    clubStats = statsData.value;
+                } else if (statsError && statsError.code === 'PGRST116') {
+                    await saveStatsToDB({ orders: 0, revenue: 0 });
+                }
+            } catch (e) {
+                console.error('Ошибка загрузки из БД:', e);
+            }
+        }
+
+        async function savePricesToDB(prices) {
+            try {
+                await supabaseClient.from('huss_settings').upsert({ key: 'prices', value: prices });
+            } catch (e) { console.error('Ошибка сохранения цен:', e); }
+        }
+
+        async function saveStatsToDB(stats) {
+            try {
+                await supabaseClient.from('huss_settings').upsert({ key: 'stats', value: stats });
+            } catch (e) { console.error('Ошибка сохранения статистики:', e); }
+        }
+
+        // Старт
+        loadDataFromDB().then(() => {
+            if (document.getElementById('admin-dashboard').style.display === 'block') {
+                updateAdminStatsUI();
+                buildPriceEditor();
+            }
+        });
 
         function enterApp() {
             document.getElementById('welcome-screen').style.display = 'none';
@@ -450,9 +259,7 @@
             if (tg) tg.HapticFeedback.impactOccurred('medium');
         }
 
-        function toggleMenu() {
-            document.getElementById('sidebar').classList.toggle('open');
-        }
+        function toggleMenu() { document.getElementById('sidebar').classList.toggle('open'); }
 
         function showSection(sectionId) {
             document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
@@ -464,15 +271,11 @@
             document.querySelectorAll('#tariff-buttons .neon-btn').forEach(btn => btn.classList.remove('selected'));
             element.classList.add('selected');
             selectedTariff = name;
-
             if (selectedTime) {
                 const newPrice = priceList[selectedTariff][selectedTime];
                 selectedPrice = newPrice;
-                
                 document.querySelectorAll('#time-buttons .neon-btn').forEach(btn => {
-                    if (btn.getAttribute('data-time') === selectedTime) {
-                        btn.innerText = newPrice + ' ₽';
-                    }
+                    if (btn.getAttribute('data-time') === selectedTime) btn.innerText = newPrice + ' ₽';
                 });
             }
             if (tg) tg.HapticFeedback.impactOccurred('light');
@@ -483,18 +286,15 @@
                 btn.classList.remove('selected');
                 btn.innerText = btn.getAttribute('data-time'); 
             });
-
             element.classList.add('selected');
             const price = priceList[selectedTariff][timeText];
             element.innerText = price + ' ₽'; 
-
             selectedTime = timeText;
             selectedPrice = price;
-
             if (tg) tg.HapticFeedback.impactOccurred('light');
         }
 
-        function submitBooking() {
+        async function submitBooking() {
             const name = document.getElementById('client-name').value.trim();
             const phone = document.getElementById('client-phone').value.trim();
             const comment = document.getElementById('client-comment').value.trim();
@@ -508,6 +308,10 @@
                 return;
             }
 
+            clubStats.orders += 1;
+            clubStats.revenue += selectedPrice;
+            await saveStatsToDB(clubStats);
+
             const commentText = comment ? comment : "Нет";
             const orderText = `🔥 НОВАЯ БРОНЬ HUSS CLUB!\n\n💻 Тариф: ${selectedTariff}\n⏰ Время: ${selectedTime}\n💰 К оплате: ${selectedPrice} ₽\n👤 Имя: ${name}\n📞 Тел: ${phone}\n💬 Комментарий: ${commentText}`;
             const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${MY_CHAT_ID}&text=${encodeURIComponent(orderText)}`;
@@ -519,44 +323,36 @@
                     if (response.ok) {
                         if (tg) tg.showAlert('Бронь успешно создана! Ждем тебя.');
                         if (tg) tg.HapticFeedback.notificationOccurred('success');
-                        
                         document.getElementById('client-name').value = '';
                         document.getElementById('client-phone').value = '';
                         document.getElementById('client-comment').value = '';
-                        
                         document.querySelectorAll('#time-buttons .neon-btn').forEach(btn => {
                             btn.classList.remove('selected');
                             btn.innerText = btn.getAttribute('data-time');
                         });
-                        
                         document.querySelectorAll('#tariff-buttons .neon-btn').forEach(btn => {
                             btn.classList.remove('selected');
                             if (btn.innerText === 'STANDART') btn.classList.add('selected');
                         });
-                        
                         selectedTariff = 'STANDART'; selectedTime = null; selectedPrice = null;
                     } else {
                         if (tg) tg.showAlert('Ошибка. Попробуй позже.');
                     }
                 })
-                .catch(error => {
-                    if (tg) tg.showAlert('Ошибка сети.');
-                });
+                .catch(error => { if (tg) tg.showAlert('Ошибка сети.'); });
         }
 
-        // ЛОГИКА АДМИНКИ
         function loginAdmin() {
             const login = document.getElementById('admin-login').value;
             const pass = document.getElementById('admin-pass').value;
-
-            // ТУТ МЫ ПРОВЕРЯЕМ ЛОГИН И ПАРОЛЬ
             if (login === 'admin' && pass === 'huss2024') {
                 document.getElementById('admin-login-form').style.display = 'none';
                 document.getElementById('admin-dashboard').style.display = 'block';
+                updateAdminStatsUI();
+                buildPriceEditor();
                 if (tg) tg.HapticFeedback.notificationOccurred('success');
             } else {
                 if (tg) tg.showAlert('Неверный логин или пароль!'); else alert('Неверный логин или пароль!');
-                if (tg) tg.HapticFeedback.notificationOccurred('error');
             }
         }
 
@@ -567,10 +363,46 @@
             document.getElementById('admin-login-form').style.display = 'block';
         }
 
+        function updateAdminStatsUI() {
+            document.getElementById('stat-orders').innerText = clubStats.orders;
+            document.getElementById('stat-revenue').innerText = clubStats.revenue + ' ₽';
+        }
+
+        function buildPriceEditor() {
+            const container = document.getElementById('price-editor');
+            container.innerHTML = '';
+            for (const tariff in priceList) {
+                const group = document.createElement('div');
+                group.className = 'price-group';
+                group.innerHTML = `<h4>${tariff}</h4>`;
+                for (const time in priceList[tariff]) {
+                    const row = document.createElement('div');
+                    row.className = 'price-row';
+                    row.innerHTML = `
+                        <span>${time}</span>
+                        <input type="number" class="price-input" value="${priceList[tariff][time]}" 
+                               onchange="updatePrice('${tariff}', '${time}', this.value)">
+                    `;
+                    group.appendChild(row);
+                }
+                container.appendChild(group);
+            }
+        }
+
+        async function updatePrice(tariff, time, newPrice) {
+            priceList[tariff][time] = parseInt(newPrice);
+            await savePricesToDB(priceList);
+            if (selectedTariff === tariff && selectedTime === time) {
+                selectedPrice = parseInt(newPrice);
+                document.querySelectorAll('#time-buttons .neon-btn').forEach(btn => {
+                    if (btn.getAttribute('data-time') === selectedTime) btn.innerText = newPrice + ' ₽';
+                });
+            }
+        }
+
         window.addEventListener('scroll', () => {
             const scrolled = window.scrollY;
-            const smokes = document.querySelectorAll('.smoke');
-            smokes.forEach((smoke, index) => {
+            document.querySelectorAll('.smoke').forEach((smoke, index) => {
                 const speed = (index % 3 + 1) * 0.3; 
                 smoke.style.transform = `translateY(-${scrolled * speed}px) scale(${1 + scrolled * 0.0005})`;
             });
