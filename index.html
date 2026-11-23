@@ -159,6 +159,7 @@
 
         .section-title { font-size: 24px; font-weight: 900; color: var(--neon-red); text-shadow: 0 0 10px rgba(255,0,60,0.5); margin-bottom: 20px; text-transform: uppercase; }
         
+        /* --- БРОНИРОВАНИЕ --- */
         .grid-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
         
         .neon-btn {
@@ -201,6 +202,57 @@
         }
         .submit-btn:active { box-shadow: 0 0 30px var(--neon-red); transform: scale(0.98); }
 
+        /* --- ОБОРУДОВАНИЕ (ТАБЛИЦА) --- */
+        .equip-block { margin-bottom: 30px; }
+        .equip-header {
+            background: var(--neon-red);
+            color: #000;
+            text-align: center;
+            font-weight: 900;
+            padding: 10px;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            box-shadow: 0 0 15px rgba(255,0,60,0.5);
+        }
+        .spec-row {
+            display: flex;
+            border: 1px solid var(--neon-red);
+            border-radius: 6px;
+            margin-bottom: 8px;
+            background: rgba(20,20,20,0.8);
+            overflow: hidden;
+        }
+        .spec-label {
+            width: 40%;
+            padding: 12px 10px;
+            border-right: 1px solid var(--neon-red);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            color: #fff;
+        }
+        .spec-value {
+            width: 60%;
+            padding: 12px 10px;
+            text-align: right;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            color: #fff;
+        }
+        /* Выделяем красным модель видеокарты и мониторов */
+        .spec-value .red-text {
+            color: var(--neon-red);
+            text-shadow: 0 0 5px rgba(255,0,60,0.5);
+            margin-left: 5px;
+        }
     </style>
 </head>
 <body>
@@ -231,10 +283,12 @@
         <div id="sidebar">
             <div class="close-btn" onclick="toggleMenu()">×</div>
             <div class="nav-link" onclick="showSection('booking')">💻 Бронь ПК</div>
+            <div class="nav-link" onclick="showSection('equipment')">🖥️ Оборудование</div> <!-- НОВАЯ КНОПКА -->
             <div class="nav-link" onclick="showSection('tournaments')">🏆 Турниры</div>
             <div class="nav-link" onclick="showSection('contacts')">📍 Контакты</div>
         </div>
 
+        <!-- РАЗДЕЛ БРОНИРОВАНИЯ -->
         <div id="booking" class="content-section active">
             <div class="section-title">Выбери тариф</div>
             <div class="grid-buttons" id="tariff-buttons">
@@ -255,18 +309,67 @@
             <div class="section-title">Твои данные</div>
             <input type="text" class="form-input" id="client-name" placeholder="Имя или Никнейм">
             <input type="tel" class="form-input" id="client-phone" placeholder="Телефон">
-            
-            <!-- НОВОЕ ПОЛЕ ДЛЯ КОММЕНТАРИЯ -->
             <input type="text" class="form-input" id="client-comment" placeholder="Комментарий (нас 5, рядом и т.д.)">
             
             <button class="submit-btn" onclick="submitBooking()">Забронировать</button>
         </div>
 
+        <!-- НОВЫЙ РАЗДЕЛ ОБОРУДОВАНИЯ -->
+        <div id="equipment" class="content-section">
+            <div class="section-title">Наше железо</div>
+            
+            <!-- Основной зал -->
+            <div class="equip-block">
+                <div class="equip-header">Основной зал</div>
+                
+                <div class="spec-row">
+                    <div class="spec-label">Видеокарта</div>
+                    <div class="spec-value">NVIDIA GEFORCE <span class="red-text">RTX 2060 / GTX 1060 6GB</span></div>
+                </div>
+                <div class="spec-row">
+                    <div class="spec-label">Процессор</div>
+                    <div class="spec-value">INTEL CORE <span class="red-text">i5-8500</span></div>
+                </div>
+                <div class="spec-row">
+                    <div class="spec-label">Оперативная память</div>
+                    <div class="spec-value">HYPERX <span class="red-text">16GB</span></div>
+                </div>
+                <div class="spec-row">
+                    <div class="spec-label">Мониторы</div>
+                    <div class="spec-value">LG 34UC79G <span class="red-text">144Hz</span><br>AOC C24G1 <span class="red-text">144Hz</span></div>
+                </div>
+            </div>
+
+            <!-- VIP Зал -->
+            <div class="equip-block">
+                <div class="equip-header">VIP зал</div>
+                
+                <div class="spec-row">
+                    <div class="spec-label">Видеокарта</div>
+                    <div class="spec-value">NVIDIA GEFORCE <span class="red-text">RTX 2070</span></div>
+                </div>
+                <div class="spec-row">
+                    <div class="spec-label">Процессор</div>
+                    <div class="spec-value">INTEL CORE <span class="red-text">i5-8500</span></div>
+                </div>
+                <div class="spec-row">
+                    <div class="spec-label">Оперативная память</div>
+                    <div class="spec-value">HYPERX <span class="red-text">16GB</span></div>
+                </div>
+                <div class="spec-row">
+                    <div class="spec-label">Мониторы</div>
+                    <div class="spec-value">AOC C27G1 <span class="red-text">144Hz</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ТУРНИРЫ -->
         <div id="tournaments" class="content-section">
             <div class="section-title">Ближайшие турниры</div>
             <p style="color: #aaa;">Скоро здесь появятся афиши турниров по CS2 и Dota 2. Следи за обновлениями!</p>
         </div>
 
+        <!-- КОНТАКТЫ -->
         <div id="contacts" class="content-section">
             <div class="section-title">Как нас найти</div>
             <p style="color: #aaa; line-height: 1.6;">
@@ -321,7 +424,6 @@
         function submitBooking() {
             const name = document.getElementById('client-name').value.trim();
             const phone = document.getElementById('client-phone').value.trim();
-            // Получаем текст комментария
             const comment = document.getElementById('client-comment').value.trim();
 
             if (!selectedTariff || !selectedTime) {
@@ -333,9 +435,7 @@
                 return;
             }
 
-            // Если комментарий есть, добавляем его в сообщение. Если нет - пишем "Нет".
             const commentText = comment ? comment : "Нет";
-            
             const orderText = `🔥 НОВАЯ БРОНЬ HUSS CLUB!\n\n💻 Тариф: ${selectedTariff}\n⏰ Время: ${selectedTime}\n👤 Имя: ${name}\n📞 Тел: ${phone}\n💬 Комментарий: ${commentText}`;
             const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${MY_CHAT_ID}&text=${encodeURIComponent(orderText)}`;
 
@@ -346,10 +446,9 @@
                     if (response.ok) {
                         if (tg) tg.showAlert('Бронь успешно создана! Ждем тебя.');
                         if (tg) tg.HapticFeedback.notificationOccurred('success');
-                        // Очищаем поля
                         document.getElementById('client-name').value = '';
                         document.getElementById('client-phone').value = '';
-                        document.getElementById('client-comment').value = ''; 
+                        document.getElementById('client-comment').value = '';
                         document.querySelectorAll('.neon-btn').forEach(btn => btn.classList.remove('selected'));
                         selectedTariff = null; selectedTime = null;
                     } else {
