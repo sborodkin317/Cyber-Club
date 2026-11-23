@@ -139,10 +139,12 @@
             box-shadow: 5px 0 20px rgba(255,0,60,0.1);
         }
         #sidebar.open { left: 0; }
-        .close-btn { font-size: 30px; color: var(--neon-red); cursor: pointer; margin-bottom: 30px; }
+        .close-btn { font-size: 30px; color: var(--neon-red); cursor: pointer; margin-bottom: 30px; text-shadow: 0 0 10px var(--neon-red);}
         
+        /* Стили для пунктов меню */
         .nav-link {
-            display: block;
+            display: flex;
+            align-items: center; /* Выравниваем иконку и текст по центру */
             color: #fff;
             text-decoration: none;
             font-size: 18px;
@@ -151,7 +153,24 @@
             border-bottom: 1px solid rgba(255,255,255,0.1);
             cursor: pointer;
         }
-        .nav-link:active { color: var(--neon-red); text-shadow: 0 0 10px var(--neon-red); }
+        
+        /* Стили для неоновых SVG иконок */
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 15px;
+            stroke: var(--neon-red);
+            stroke-width: 2;
+            fill: none;
+            filter: drop-shadow(0 0 5px var(--neon-red));
+            transition: 0.2s;
+        }
+
+        .nav-link:active .nav-icon {
+            filter: drop-shadow(0 0 10px var(--neon-red));
+            stroke: #fff;
+        }
+        .nav-link:active { color: var(--neon-red); }
 
         .content-section { display: none; padding: 20px; }
         .content-section.active { display: block; animation: fadeIn 0.4s; }
@@ -181,10 +200,7 @@
             min-height: 54px;
         }
         
-        /* Класс для кнопки на всю ширину */
-        .full-width {
-            grid-column: 1 / -1;
-        }
+        .full-width { grid-column: 1 / -1; }
 
         .neon-btn.selected { 
             background: var(--neon-red); 
@@ -289,12 +305,50 @@
             <div class="header-title">HUSS CLUB</div>
         </header>
 
+        <!-- БОКОВОЕ МЕНЮ С НЕОНОВЫМИ ИКОНКАМИ -->
         <div id="sidebar">
             <div class="close-btn" onclick="toggleMenu()">×</div>
-            <div class="nav-link" onclick="showSection('booking')">💻 Бронь ПК</div>
-            <div class="nav-link" onclick="showSection('equipment')">🖥️ Оборудование</div>
-            <div class="nav-link" onclick="showSection('tournaments')">🏆 Турниры</div>
-            <div class="nav-link" onclick="showSection('contacts')">📍 Контакты</div>
+            
+            <div class="nav-link" onclick="showSection('booking')">
+                <!-- Иконка Ноутбука (Бронь) -->
+                <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="12" rx="2" ry="2"></rect>
+                    <line x1="2" y1="20" x2="22" y2="20"></line>
+                </svg>
+                Бронь ПК
+            </div>
+            
+            <div class="nav-link" onclick="showSection('equipment')">
+                <!-- Иконка Монитора (Оборудование) -->
+                <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+                Оборудование
+            </div>
+            
+            <div class="nav-link" onclick="showSection('tournaments')">
+                <!-- Иконка Кубка (Турниры) -->
+                <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                    <path d="M4 22h16"></path>
+                    <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+                    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+                    <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+                </svg>
+                Турниры
+            </div>
+            
+            <div class="nav-link" onclick="showSection('contacts')">
+                <!-- Иконка Геолокации (Контакты) -->
+                <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                Контакты
+            </div>
         </div>
 
         <!-- РАЗДЕЛ БРОНИРОВАНИЯ -->
@@ -313,7 +367,6 @@
                 <div class="neon-btn" data-time="3 часа" onclick="selectTime(this, '3 часа', '250')">3 часа</div>
                 <div class="neon-btn" data-time="5 часов" onclick="selectTime(this, '5 часов', '400')">5 часов</div>
                 <div class="neon-btn" data-time="Всю ночь" onclick="selectTime(this, 'Всю ночь', '420')">Всю ночь</div>
-                <!-- Кнопка на всю ширину -->
                 <div class="neon-btn full-width" data-time="Весь день" onclick="selectTime(this, 'Весь день', '600')">Весь день</div>
             </div>
 
