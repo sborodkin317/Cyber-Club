@@ -25,7 +25,7 @@
             user-select: none;
         }
 
-        /* --- ЭФФЕКТ ДЫМА (ТЕПЕРЬ ЗАМЕТНЫЙ) --- */
+        /* --- ЭФФЕКТ ДЫМА --- */
         .smoke-container {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -38,7 +38,6 @@
             position: absolute;
             bottom: -150px;
             width: 250px; height: 250px;
-            /* Серый дым */
             background: radial-gradient(circle, rgba(200,200,200,0.25) 0%, rgba(200,200,200,0) 60%);
             border-radius: 50%;
             filter: blur(20px);
@@ -46,13 +45,11 @@
             transition: transform 0.1s ease-out;
         }
 
-        /* Красный неоновый дым */
         .smoke.red {
             background: radial-gradient(circle, rgba(255,0,60,0.3) 0%, rgba(255,0,60,0) 60%);
             filter: blur(25px);
         }
 
-        /* Распределяем дым по экрану */
         .smoke:nth-child(1) { left: 5%; animation-duration: 14s; animation-delay: 0s;}
         .smoke:nth-child(2) { left: 25%; animation-duration: 18s; animation-delay: 2s;}
         .smoke:nth-child(3) { left: 50%; animation-duration: 15s; animation-delay: 4s;}
@@ -208,7 +205,6 @@
 </head>
 <body>
 
-    <!-- Контейнер с дымом -->
     <div class="smoke-container" id="smoke-container">
         <div class="smoke"></div>
         <div class="smoke"></div>
@@ -259,6 +255,9 @@
             <div class="section-title">Твои данные</div>
             <input type="text" class="form-input" id="client-name" placeholder="Имя или Никнейм">
             <input type="tel" class="form-input" id="client-phone" placeholder="Телефон">
+            
+            <!-- НОВОЕ ПОЛЕ ДЛЯ КОММЕНТАРИЯ -->
+            <input type="text" class="form-input" id="client-comment" placeholder="Комментарий (нас 5, рядом и т.д.)">
             
             <button class="submit-btn" onclick="submitBooking()">Забронировать</button>
         </div>
@@ -322,6 +321,8 @@
         function submitBooking() {
             const name = document.getElementById('client-name').value.trim();
             const phone = document.getElementById('client-phone').value.trim();
+            // Получаем текст комментария
+            const comment = document.getElementById('client-comment').value.trim();
 
             if (!selectedTariff || !selectedTime) {
                 if (tg) tg.showAlert('Выбери тариф и время!'); else alert('Выбери тариф и время!');
@@ -332,7 +333,10 @@
                 return;
             }
 
-            const orderText = `🔥 НОВАЯ БРОНЬ HUSS CLUB!\n\n💻 Тариф: ${selectedTariff}\n⏰ Время: ${selectedTime}\n👤 Имя: ${name}\n📞 Тел: ${phone}`;
+            // Если комментарий есть, добавляем его в сообщение. Если нет - пишем "Нет".
+            const commentText = comment ? comment : "Нет";
+            
+            const orderText = `🔥 НОВАЯ БРОНЬ HUSS CLUB!\n\n💻 Тариф: ${selectedTariff}\n⏰ Время: ${selectedTime}\n👤 Имя: ${name}\n📞 Тел: ${phone}\n💬 Комментарий: ${commentText}`;
             const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${MY_CHAT_ID}&text=${encodeURIComponent(orderText)}`;
 
             if (tg) tg.showAlert('Отправляем бронь...');
@@ -342,8 +346,10 @@
                     if (response.ok) {
                         if (tg) tg.showAlert('Бронь успешно создана! Ждем тебя.');
                         if (tg) tg.HapticFeedback.notificationOccurred('success');
+                        // Очищаем поля
                         document.getElementById('client-name').value = '';
                         document.getElementById('client-phone').value = '';
+                        document.getElementById('client-comment').value = ''; 
                         document.querySelectorAll('.neon-btn').forEach(btn => btn.classList.remove('selected'));
                         selectedTariff = null; selectedTime = null;
                     } else {
@@ -355,12 +361,10 @@
                 });
         }
 
-        // Улучшенный эффект дыма при скролле
         window.addEventListener('scroll', () => {
             const scrolled = window.scrollY;
             const smokes = document.querySelectorAll('.smoke');
             smokes.forEach((smoke, index) => {
-                // Разная скорость для разных клубов дыма
                 const speed = (index % 3 + 1) * 0.3; 
                 smoke.style.transform = `translateY(-${scrolled * speed}px) scale(${1 + scrolled * 0.0005})`;
             });
