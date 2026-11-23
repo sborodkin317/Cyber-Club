@@ -175,12 +175,17 @@
             text-align: center;
             box-shadow: 0 0 10px rgba(255,0,60,0.1);
             transition: 0.2s;
-            /* Чтобы текст не прыгал при смене */
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 54px;
         }
+        
+        /* Класс для кнопки на всю ширину */
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
         .neon-btn.selected { 
             background: var(--neon-red); 
             color: #fff; 
@@ -304,10 +309,12 @@
 
             <div class="section-title">Время игры</div>
             <div class="grid-buttons" id="time-buttons">
-                <!-- data-time хранит изначальный текст, чтобы вернуть его при отмене -->
                 <div class="neon-btn" data-time="1 час" onclick="selectTime(this, '1 час', '100')">1 час</div>
                 <div class="neon-btn" data-time="3 часа" onclick="selectTime(this, '3 часа', '250')">3 часа</div>
+                <div class="neon-btn" data-time="5 часов" onclick="selectTime(this, '5 часов', '400')">5 часов</div>
                 <div class="neon-btn" data-time="Всю ночь" onclick="selectTime(this, 'Всю ночь', '420')">Всю ночь</div>
+                <!-- Кнопка на всю ширину -->
+                <div class="neon-btn full-width" data-time="Весь день" onclick="selectTime(this, 'Весь день', '600')">Весь день</div>
             </div>
 
             <div class="section-title">Твои данные</div>
@@ -413,20 +420,16 @@
             if (tg) tg.HapticFeedback.impactOccurred('light');
         }
 
-        // ОБНОВЛЕННАЯ ФУНКЦИЯ: теперь меняет текст на кнопке
         function selectTime(element, timeText, priceText) {
-            // 1. Сбрасываем все кнопки времени (возвращаем им часы)
             const timeButtons = document.querySelectorAll('#time-buttons .neon-btn');
             timeButtons.forEach(btn => {
                 btn.classList.remove('selected');
-                btn.innerText = btn.getAttribute('data-time'); // Возвращаем "1 час", "3 часа" и т.д.
+                btn.innerText = btn.getAttribute('data-time'); 
             });
 
-            // 2. Выделяем нажатую кнопку и ставим ей цену
             element.classList.add('selected');
             element.innerText = priceText + ' ₽'; 
 
-            // 3. Запоминаем для отправки
             selectedTime = timeText;
             selectedPrice = priceText;
 
@@ -460,12 +463,10 @@
                         if (tg) tg.showAlert('Бронь успешно создана! Ждем тебя.');
                         if (tg) tg.HapticFeedback.notificationOccurred('success');
                         
-                        // Очищаем форму
                         document.getElementById('client-name').value = '';
                         document.getElementById('client-phone').value = '';
                         document.getElementById('client-comment').value = '';
                         
-                        // Возвращаем кнопки в исходное состояние
                         document.querySelectorAll('.neon-btn').forEach(btn => {
                             btn.classList.remove('selected');
                             if (btn.hasAttribute('data-time')) {
