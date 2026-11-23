@@ -144,7 +144,7 @@
         /* Стили для пунктов меню */
         .nav-link {
             display: flex;
-            align-items: center; /* Выравниваем иконку и текст по центру */
+            align-items: center;
             color: #fff;
             text-decoration: none;
             font-size: 18px;
@@ -278,6 +278,41 @@
             text-shadow: 0 0 5px rgba(255,0,60,0.5);
             margin-left: 5px;
         }
+
+        /* --- БЛОК ПАРТНЕРОВ (КОНТАКТЫ) --- */
+        .partners-block {
+            margin-top: 40px;
+            border: 2px solid var(--neon-red);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(255,0,60,0.2), inset 0 0 15px rgba(255,0,60,0.1);
+            background: rgba(15, 15, 15, 0.9);
+        }
+        .partners-title {
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            opacity: 0.7;
+        }
+        .partners-list {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            align-items: center;
+        }
+        .partner-logo {
+            color: var(--neon-red);
+            font-size: 22px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 5px var(--neon-red), 0 0 15px var(--neon-red);
+        }
+
     </style>
 </head>
 <body>
@@ -305,12 +340,10 @@
             <div class="header-title">HUSS CLUB</div>
         </header>
 
-        <!-- БОКОВОЕ МЕНЮ С НЕОНОВЫМИ ИКОНКАМИ -->
         <div id="sidebar">
             <div class="close-btn" onclick="toggleMenu()">×</div>
             
             <div class="nav-link" onclick="showSection('booking')">
-                <!-- Иконка Ноутбука (Бронь) -->
                 <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="4" width="18" height="12" rx="2" ry="2"></rect>
                     <line x1="2" y1="20" x2="22" y2="20"></line>
@@ -319,7 +352,6 @@
             </div>
             
             <div class="nav-link" onclick="showSection('equipment')">
-                <!-- Иконка Монитора (Оборудование) -->
                 <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
                     <line x1="8" y1="21" x2="16" y2="21"></line>
@@ -329,7 +361,6 @@
             </div>
             
             <div class="nav-link" onclick="showSection('tournaments')">
-                <!-- Иконка Кубка (Турниры) -->
                 <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
                     <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
@@ -342,7 +373,6 @@
             </div>
             
             <div class="nav-link" onclick="showSection('contacts')">
-                <!-- Иконка Геолокации (Контакты) -->
                 <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                     <circle cx="12" cy="10" r="3"></circle>
@@ -351,7 +381,6 @@
             </div>
         </div>
 
-        <!-- РАЗДЕЛ БРОНИРОВАНИЯ -->
         <div id="booking" class="content-section active">
             <div class="section-title">Выбери тариф</div>
             <div class="grid-buttons" id="tariff-buttons">
@@ -378,7 +407,6 @@
             <button class="submit-btn" onclick="submitBooking()">Забронировать</button>
         </div>
 
-        <!-- РАЗДЕЛ ОБОРУДОВАНИЯ -->
         <div id="equipment" class="content-section">
             <div class="section-title">Наше железо</div>
             
@@ -428,6 +456,7 @@
             <p style="color: #aaa;">Скоро здесь появятся афиши турниров по CS2 и Dota 2. Следи за обновлениями!</p>
         </div>
 
+        <!-- ОБНОВЛЕННЫЙ РАЗДЕЛ КОНТАКТОВ -->
         <div id="contacts" class="content-section">
             <div class="section-title">Как нас найти</div>
             <p style="color: #aaa; line-height: 1.6;">
@@ -435,6 +464,15 @@
                 🕒 Работаем 24/7<br><br>
                 📞 +7 (999) 123-45-67
             </p>
+
+            <!-- НОВЫЙ БЛОК ПАРТНЕРОВ -->
+            <div class="partners-block">
+                <div class="partners-title">Наши партнеры</div>
+                <div class="partners-list">
+                    <span class="partner-logo">WIZARU</span>
+                    <span class="partner-logo">WTF</span>
+                </div>
+            </div>
         </div>
     </div>
 
