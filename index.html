@@ -12,11 +12,10 @@
     <style>
         :root {
             --hazard-yellow: #f5c518;
-            --hazard-dark: #111;
             --metal-dark: #0a0a0a;
             --metal-mid: #1c1c1c;
             --metal-light: #333;
-            --rust: #6b2e2e;
+            --red-light: #ff1a1a;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -30,7 +29,7 @@
             min-height: 100vh;
         }
 
-        /* ====== ФОН БУНКЕРА (ПСЕВДО-3D) ====== */
+        /* ====== ФОН (За дверью) ====== */
         .bunker-bg {
             position: fixed; inset: 0; z-index: 0; pointer-events: none;
             perspective: 1000px; overflow: hidden;
@@ -49,145 +48,154 @@
                 linear-gradient(90deg, #050505 0%, transparent 30%, transparent 70%, #050505 100%);
             background-size: 100% 100%, 100% 100%, 100% 100%;
         }
-        
-        /* Имитация труб по бокам */
-        .pipe {
-            position: absolute; top: 0; bottom: 0; width: 20px;
-            background: linear-gradient(90deg, #000, #222, #000);
-            box-shadow: 5px 0 15px rgba(0,0,0,0.9);
-            opacity: 0.6;
-        }
-        .pipe.left { left: 15%; }
-        .pipe.right { right: 15%; }
 
-        /* Аварийные лампы */
-        .emergency-light {
-            position: absolute; top: 25%; left: 20%;
-            width: 10px; height: 40px; background: #ff0000; border-radius: 5px;
-            box-shadow: 0 0 40px 10px rgba(255,0,0,0.3);
-            animation: blink 4s infinite;
-        }
-        .emergency-light.right { left: auto; right: 20%; animation-delay: 2s; }
-        @keyframes blink { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.8; box-shadow: 0 0 60px 20px rgba(255,0,0,0.5); } }
-
-        /* ====== ЭКРАН ВХОДА ====== */
+        /* ====== ЭКРАН ВХОДА (СЕЙФ) ====== */
         #welcome-screen {
             height: 100vh; display: flex; flex-direction: column;
             justify-content: center; align-items: center;
             position: relative; z-index: 10; overflow: hidden;
+            background: #050505;
         }
 
-        /* Вспышка */
+        /* Вспышка при открытии */
         .flash {
             position: fixed; inset: 0; background: #fff; z-index: 999;
             opacity: 0; pointer-events: none;
-            transition: opacity 0.15s ease;
+            transition: opacity 0.2s ease;
         }
         .flash.active { opacity: 1; }
 
-        /* Контейнер дверей */
-        .door-container {
+        /* Сама дверь-сейф (на весь экран) */
+        .vault-door {
             position: absolute; inset: 0;
-            display: flex; z-index: 50;
-            transition: transform 1.5s cubic-bezier(0.85, 0, 0.15, 1); /* Тяжелый, медленный ход */
-        }
-        
-        /* Сама дверь */
-        .door {
-            width: 50%; height: 100%;
-            position: relative;
-            /* Текстура: темный металл, ржавчина, заклепки */
-            background-color: #0f0f0f;
+            background-color: #111;
+            /* Текстура металла, ржавчины и заклепок */
             background-image: 
-                /* Ржавые разводы */
-                radial-gradient(ellipse at 10% 90%, rgba(107,46,46,0.4) 0%, transparent 40%),
-                radial-gradient(ellipse at 90% 20%, rgba(107,46,46,0.3) 0%, transparent 30%),
-                /* Заклепки */
-                radial-gradient(circle at 10px 10px, #333 2px, transparent 3px),
-                radial-gradient(circle at 10px 10px, #000 1px, transparent 2px),
-                /* Панели */
-                linear-gradient(180deg, #151515 0%, #0a0a0a 100%);
-            background-size: 100% 100%, 100% 100%, 50px 50px, 50px 50px, 100% 100%;
-            border: 4px solid #000;
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.95), inset 0 0 20px rgba(0,0,0,1);
-            display: flex; align-items: center; justify-content: center;
+                /* Темные пятна и ржавчина */
+                radial-gradient(circle at 10% 20%, rgba(0,0,0,0.8) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(107,46,46,0.2) 0%, transparent 50%),
+                /* Заклепки по краям */
+                radial-gradient(circle at 15px 15px, #333 2px, transparent 3px),
+                radial-gradient(circle at 15px 15px, #000 1px, transparent 2px),
+                /* Металлические панели */
+                linear-gradient(135deg, #151515 0%, #0a0a0a 100%);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px, 100% 100%;
+            border: 10px solid #000;
+            box-shadow: inset 0 0 150px rgba(0,0,0,1), inset 0 0 20px rgba(0,0,0,1);
+            z-index: 50;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: transform 2.5s cubic-bezier(0.77, 0, 0.175, 1); /* Тяжелый ход */
+            overflow: hidden;
         }
         
-        .door.left { border-right: 2px solid #1a1a1a; }
-        .door.right { border-left: 2px solid #1a1a1a; }
+        /* Анимация открытия двери (уезжает вправо) */
+        .vault-door.open {
+            transform: translateX(100%);
+        }
 
-        /* Предупреждающие полосы */
+        /* Желто-черные полосы на двери */
         .hazard-stripes {
-            position: absolute; bottom: 15%; left: 0; right: 0; height: 30px;
-            background: repeating-linear-gradient(-45deg, #f5c518 0, #f5c518 15px, #000 15px, #000 30px);
-            border-top: 2px solid #000; border-bottom: 2px solid #000;
-            opacity: 0.7; box-shadow: inset 0 0 30px rgba(0,0,0,0.9);
-            filter: grayscale(0.5); /* Делаем полосы грязными */
+            position: absolute; bottom: 10%; left: 0; right: 0; height: 40px;
+            background: repeating-linear-gradient(-45deg, #f5c518 0, #f5c518 20px, #111 20px, #111 40px);
+            border-top: 3px solid #000; border-bottom: 3px solid #000;
+            opacity: 0.8; box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
         }
 
-        /* Штурвал */
-        .door-wheel {
-            width: 160px; height: 160px;
-            border: 12px solid #1c1c1c; border-radius: 50%;
-            position: relative;
-            background: radial-gradient(circle, #000 30%, #151515 100%);
-            box-shadow: 
-                0 15px 30px rgba(0,0,0,0.9), 
-                inset 0 0 20px rgba(0,0,0,1),
-                0 0 0 6px #000; /* Внешний обод */
-            z-index: 2;
+        /* Надпись на двери */
+        .door-text {
+            position: absolute; top: 15%;
+            font-family: 'Russo One', sans-serif;
+            font-size: 24px; color: #333;
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #444;
+            letter-spacing: 5px; text-align: center; width: 100%;
         }
-        /* Рукоятки штурвала */
-        .door-wheel::before, .door-wheel::after {
+
+        /* Центральный механизм (Штурвал) */
+        .vault-wheel-container {
+            position: relative;
+            width: 320px; height: 320px;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 10;
+        }
+
+        /* Красные аварийные фонари на двери */
+        .door-light {
+            position: absolute; top: 50%;
+            width: 20px; height: 80px;
+            background: var(--red-light); border-radius: 10px;
+            box-shadow: 0 0 40px 15px rgba(255,26,26,0.4);
+            animation: blinkLight 2s infinite alternate;
+            transform: translateY(-50%);
+        }
+        .door-light.left { left: 10%; }
+        .door-light.right { right: 10%; animation-delay: 1s; }
+        
+        @keyframes blinkLight {
+            0% { opacity: 0.3; box-shadow: 0 0 20px 5px rgba(255,26,26,0.2); }
+            100% { opacity: 1; box-shadow: 0 0 60px 25px rgba(255,26,26,0.6); }
+        }
+
+        /* Сам штурвал (круг) */
+        .vault-wheel {
+            width: 100%; height: 100%;
+            border: 20px solid #1a1a1a; border-radius: 50%;
+            position: relative;
+            background: radial-gradient(circle, #050505 40%, #111 100%);
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.9), 
+                inset 0 0 30px rgba(0,0,0,1),
+                0 0 0 8px #000,
+                inset 0 0 0 5px #333;
+        }
+
+        /* Спицы штурвала */
+        .vault-wheel::before, .vault-wheel::after {
             content: ''; position: absolute; top: 50%; left: 50%;
-            width: 160%; height: 20px; background: #151515;
+            width: 130%; height: 25px; background: #1a1a1a;
             transform: translate(-50%, -50%);
-            box-shadow: inset 0 0 10px #000;
+            box-shadow: inset 0 0 10px #000, 0 5px 15px rgba(0,0,0,0.8);
             border: 2px solid #2a2a2a; border-radius: 4px;
         }
-        .door-wheel::after { transform: translate(-50%, -50%) rotate(90deg); }
+        .vault-wheel::after { transform: translate(-50%, -50%) rotate(90deg); }
         
-        /* Центральный замок */
-        .wheel-center {
+        /* Дополнительные спицы (по диагонали) */
+        .vault-spoke-diag {
             position: absolute; top: 50%; left: 50%;
-            width: 40px; height: 40px; background: #0a0a0a;
-            border-radius: 50%; transform: translate(-50%, -50%);
-            box-shadow: inset 0 0 15px #000; z-index: 3; border: 3px solid #222;
-            display: flex; align-items: center; justify-content: center;
+            width: 130%; height: 25px; background: #1a1a1a;
+            box-shadow: inset 0 0 10px #000, 0 5px 15px rgba(0,0,0,0.8);
+            border: 2px solid #2a2a2a; border-radius: 4px;
+            z-index: -1;
         }
-        .wheel-center::before {
-            content: ''; width: 10px; height: 10px; background: #000; border-radius: 50%;
-        }
+        .vault-spoke-diag.spoke-1 { transform: translate(-50%, -50%) rotate(45deg); }
+        .vault-spoke-diag.spoke-2 { transform: translate(-50%, -50%) rotate(-45deg); }
 
-        /* Анимация открытия */
-        .door-container.open .door.left { transform: translateX(-100%); }
-        .door-container.open .door.right { transform: translateX(100%); }
-
-        /* Контент после открытия */
-        .welcome-content {
-            text-align: center; z-index: 60;
-            opacity: 0; transition: opacity 1s ease 1s; /* Появится через 1 секунду */
-            transform: translateY(20px); transition: all 1s ease 1s;
-            display: flex; flex-direction: column; align-items: center;
-        }
-        .welcome-content.show { opacity: 1; transform: translateY(0); }
-
-        /* Кнопка входа */
+        /* Кнопка "ВОЙТИ" в центре штурвала */
         .enter-btn {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 100;
-            background: #111;
-            color: var(--hazard-yellow); border: 4px solid var(--hazard-yellow);
-            padding: 20px 60px; font-size: 24px;
+            position: absolute; z-index: 100;
+            background: #111; color: var(--hazard-yellow);
+            border: 3px solid var(--hazard-yellow);
+            padding: 20px 45px; font-size: 22px;
             font-family: 'Russo One', sans-serif;
-            text-transform: uppercase; letter-spacing: 4px;
+            text-transform: uppercase; letter-spacing: 3px;
             cursor: pointer; border-radius: 8px;
-            box-shadow: 0 0 30px rgba(245, 197, 24, 0.3), inset 0 0 20px rgba(245, 197, 24, 0.1);
+            box-shadow: 0 0 30px rgba(245, 197, 24, 0.4), inset 0 0 20px rgba(245, 197, 24, 0.2);
             transition: 0.2s;
         }
-        .enter-btn:active { transform: translate(-50%, -50%) scale(0.95); box-shadow: 0 0 60px rgba(245, 197, 24, 0.6); }
-        .enter-btn.hidden { opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .enter-btn:active { 
+            transform: scale(0.95); 
+            box-shadow: 0 0 60px rgba(245, 197, 24, 0.8); 
+        }
+        .enter-btn.hidden { 
+            opacity: 0; pointer-events: none; transition: opacity 0.3s; 
+        }
+
+        /* Логотип, который появляется после открытия */
+        .welcome-content {
+            text-align: center; z-index: 60;
+            opacity: 0; transition: opacity 1s ease 1.5s;
+            position: absolute;
+        }
+        .welcome-content.show { opacity: 1; }
 
         .logo {
             font-family: 'Russo One', sans-serif;
@@ -200,6 +208,7 @@
             transform: skew(-5deg); box-shadow: 10px 10px 0 rgba(0,0,0,0.8);
         }
         .logo span { display: block; font-size: 16px; color: #fff; letter-spacing: 8px; margin-top: 10px; }
+
 
         /* ====== ОСНОВНОЕ ПРИЛОЖЕНИЕ ====== */
         #main-app { display: none; padding-bottom: 50px; position: relative; z-index: 10; min-height: 100vh; }
@@ -347,34 +356,36 @@
 
     <div class="flash" id="flash"></div>
 
-    <!-- Фон бункера -->
+    <!-- Фон бункера (открывается за дверью) -->
     <div class="bunker-bg">
         <div class="bunker-room" id="bunker-room"></div>
-        <div class="pipe left"></div>
-        <div class="pipe right"></div>
-        <div class="emergency-light"></div>
-        <div class="emergency-light right"></div>
     </div>
 
-    <!-- ЭКРАН ВХОДА -->
+    <!-- ЭКРАН ВХОДА (СЕЙФ) -->
     <div id="welcome-screen">
         
-        <!-- Кнопка Войти (поверх дверей) -->
-        <button class="enter-btn" id="enter-btn" onclick="openDoors()">Войти</button>
+        <!-- Огромная дверь-сейф -->
+        <div class="vault-door" id="vault-door">
+            <div class="door-text">СЕКТОР 47</div>
+            
+            <!-- Красные фонари -->
+            <div class="door-light left"></div>
+            <div class="door-light right"></div>
+            
+            <!-- Штурвал с кнопкой -->
+            <div class="vault-wheel-container">
+                <div class="vault-wheel">
+                    <div class="vault-spoke-diag spoke-1"></div>
+                    <div class="vault-spoke-diag spoke-2"></div>
+                </div>
+                <!-- Кнопка Войти -->
+                <button class="enter-btn" id="enter-btn" onclick="openDoor()">ВОЙТИ</button>
+            </div>
 
-        <!-- Двери -->
-        <div class="door-container" id="door-container">
-            <div class="door left">
-                <div class="hazard-stripes"></div>
-                <div class="door-wheel"><div class="wheel-center"></div></div>
-            </div>
-            <div class="door right">
-                <div class="hazard-stripes"></div>
-                <div class="door-wheel"><div class="wheel-center"></div></div>
-            </div>
+            <div class="hazard-stripes"></div>
         </div>
         
-        <!-- Контент (появится после открытия) -->
+        <!-- Логотип, который появится после открытия двери -->
         <div class="welcome-content" id="welcome-content">
             <h1 class="logo">БУНКЕР<span>КОМПЬЮТЕРНЫЙ КЛУБ</span></h1>
         </div>
@@ -505,38 +516,44 @@
         let selectedTime = null;
         let selectedPrice = null;
 
-        // ===== АНИМАЦИЯ ДВЕРЕЙ =====
-        function openDoors() {
+        // ===== АНИМАЦИЯ ОТКРЫТИЯ СЕЙФА =====
+        function openDoor() {
             // Вибрация
             if (tg) tg.HapticFeedback.impactOccurred('heavy');
             
             const btn = document.getElementById('enter-btn');
             const flash = document.getElementById('flash');
-            const doors = document.getElementById('door-container');
+            const door = document.getElementById('vault-door');
             const content = document.getElementById('welcome-content');
             const welcomeScreen = document.getElementById('welcome-screen');
             const mainApp = document.getElementById('main-app');
 
-            // 1. Скрываем кнопку
+            // 1. Скрываем кнопку и запускаем открытие
             btn.classList.add('hidden');
             
-            // 2. Вспышка
-            flash.classList.add('active');
-            
-            // 3. Начинаем открывать двери (через 150мс)
+            // Небольшая задержка перед началом движения для эффекта
             setTimeout(() => {
-                flash.classList.remove('active');
-                doors.classList.add('open'); // Двери уезжают
-                content.classList.add('show'); // Появляется логотип
+                // Дверь уезжает вправо
+                door.classList.add('open');
+                
+                // Легкая вспышка, когда дверь тронулась
+                flash.classList.add('active');
+                setTimeout(() => flash.classList.remove('active'), 100);
+                
                 if (tg) tg.HapticFeedback.impactOccurred('medium');
             }, 150);
 
-            // 4. Показываем главное приложение (через 2.5 секунды, когда двери откроются)
+            // 2. Показываем логотип в проеме
+            setTimeout(() => {
+                content.classList.add('show');
+            }, 800);
+
+            // 3. Переключаем на главное приложение (через 2.5 секунды)
             setTimeout(() => {
                 welcomeScreen.style.display = 'none';
                 mainApp.style.display = 'block';
                 if (tg) tg.HapticFeedback.impactOccurred('light');
-            }, 2500);
+            }, 2800); // Ждем, пока дверь полностью уедет
         }
 
         // ===== БАЗА ДАННЫХ =====
@@ -575,7 +592,6 @@
             element.classList.add('selected');
             selectedTariff = name;
             
-            // Обновляем цену, если время уже выбрано
             if (selectedTime) {
                 const newPrice = priceList[selectedTariff][selectedTime];
                 selectedPrice = newPrice;
@@ -587,12 +603,10 @@
         }
 
         function selectTime(element, timeText) {
-            // Сбрасываем старые кнопки
             document.querySelectorAll('#time-buttons .neon-btn').forEach(btn => {
                 btn.classList.remove('selected');
                 btn.innerText = btn.getAttribute('data-time'); 
             });
-            // Выделяем новую
             element.classList.add('selected');
             const price = priceList[selectedTariff][timeText];
             element.innerText = price + ' ₽'; 
