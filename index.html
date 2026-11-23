@@ -166,9 +166,9 @@
             background: rgba(255,0,60,0.1);
             color: var(--neon-red);
             border: 1px solid var(--neon-red);
-            padding: 15px;
+            padding: 15px 5px; /* Чуть уменьшил отступы, чтобы текст влез */
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
             font-family: 'Montserrat', sans-serif;
             cursor: pointer;
@@ -247,7 +247,6 @@
             justify-content: flex-end;
             color: #fff;
         }
-        /* Выделяем красным модель видеокарты и мониторов */
         .spec-value .red-text {
             color: var(--neon-red);
             text-shadow: 0 0 5px rgba(255,0,60,0.5);
@@ -283,7 +282,7 @@
         <div id="sidebar">
             <div class="close-btn" onclick="toggleMenu()">×</div>
             <div class="nav-link" onclick="showSection('booking')">💻 Бронь ПК</div>
-            <div class="nav-link" onclick="showSection('equipment')">🖥️ Оборудование</div> <!-- НОВАЯ КНОПКА -->
+            <div class="nav-link" onclick="showSection('equipment')">🖥️ Оборудование</div>
             <div class="nav-link" onclick="showSection('tournaments')">🏆 Турниры</div>
             <div class="nav-link" onclick="showSection('contacts')">📍 Контакты</div>
         </div>
@@ -300,10 +299,10 @@
 
             <div class="section-title">Время игры</div>
             <div class="grid-buttons" id="time-buttons">
-                <div class="neon-btn" onclick="selectTime('1 час', this)">1 час</div>
-                <div class="neon-btn" onclick="selectTime('3 часа', this)">3 часа</div>
-                <div class="neon-btn" onclick="selectTime('5 часов', this)">5 часов</div>
-                <div class="neon-btn" onclick="selectTime('Ночь', this)">Ночь</div>
+                <!-- ОБНОВЛЕННЫЕ КНОПКИ С ЦЕНАМИ -->
+                <div class="neon-btn" onclick="selectTime('1 час', 100, this)">1 час - 100₽</div>
+                <div class="neon-btn" onclick="selectTime('3 часа', 250, this)">3 часа - 250₽</div>
+                <div class="neon-btn" onclick="selectTime('Всю ночь', 420, this)">Всю ночь - 420₽</div>
             </div>
 
             <div class="section-title">Твои данные</div>
@@ -314,14 +313,12 @@
             <button class="submit-btn" onclick="submitBooking()">Забронировать</button>
         </div>
 
-        <!-- НОВЫЙ РАЗДЕЛ ОБОРУДОВАНИЯ -->
+        <!-- РАЗДЕЛ ОБОРУДОВАНИЯ -->
         <div id="equipment" class="content-section">
             <div class="section-title">Наше железо</div>
             
-            <!-- Основной зал -->
             <div class="equip-block">
                 <div class="equip-header">Основной зал</div>
-                
                 <div class="spec-row">
                     <div class="spec-label">Видеокарта</div>
                     <div class="spec-value">NVIDIA GEFORCE <span class="red-text">RTX 2060 / GTX 1060 6GB</span></div>
@@ -340,10 +337,8 @@
                 </div>
             </div>
 
-            <!-- VIP Зал -->
             <div class="equip-block">
                 <div class="equip-header">VIP зал</div>
-                
                 <div class="spec-row">
                     <div class="spec-label">Видеокарта</div>
                     <div class="spec-value">NVIDIA GEFORCE <span class="red-text">RTX 2070</span></div>
@@ -363,13 +358,11 @@
             </div>
         </div>
 
-        <!-- ТУРНИРЫ -->
         <div id="tournaments" class="content-section">
             <div class="section-title">Ближайшие турниры</div>
             <p style="color: #aaa;">Скоро здесь появятся афиши турниров по CS2 и Dota 2. Следи за обновлениями!</p>
         </div>
 
-        <!-- КОНТАКТЫ -->
         <div id="contacts" class="content-section">
             <div class="section-title">Как нас найти</div>
             <p style="color: #aaa; line-height: 1.6;">
@@ -406,6 +399,7 @@
 
         let selectedTariff = null;
         let selectedTime = null;
+        let selectedPrice = null; // Новая переменная для хранения цены
 
         function selectTariff(name, element) {
             document.querySelectorAll('#tariff-buttons .neon-btn').forEach(btn => btn.classList.remove('selected'));
@@ -414,10 +408,12 @@
             if (tg) tg.HapticFeedback.impactOccurred('light');
         }
 
-        function selectTime(time, element) {
+        // Обновленная функция выбора времени (теперь принимает цену)
+        function selectTime(time, price, element) {
             document.querySelectorAll('#time-buttons .neon-btn').forEach(btn => btn.classList.remove('selected'));
             element.classList.add('selected');
             selectedTime = time;
+            selectedPrice = price; // Запоминаем цену
             if (tg) tg.HapticFeedback.impactOccurred('light');
         }
 
@@ -436,7 +432,9 @@
             }
 
             const commentText = comment ? comment : "Нет";
-            const orderText = `🔥 НОВАЯ БРОНЬ HUSS CLUB!\n\n💻 Тариф: ${selectedTariff}\n⏰ Время: ${selectedTime}\n👤 Имя: ${name}\n📞 Тел: ${phone}\n💬 Комментарий: ${commentText}`;
+            
+            // Добавили вывод цены в сообщение
+            const orderText = `🔥 НОВАЯ БРОНЬ HUSS CLUB!\n\n💻 Тариф: ${selectedTariff}\n⏰ Время: ${selectedTime}\n💰 К оплате: ${selectedPrice} ₽\n👤 Имя: ${name}\n📞 Тел: ${phone}\n💬 Комментарий: ${commentText}`;
             const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${MY_CHAT_ID}&text=${encodeURIComponent(orderText)}`;
 
             if (tg) tg.showAlert('Отправляем бронь...');
@@ -450,7 +448,7 @@
                         document.getElementById('client-phone').value = '';
                         document.getElementById('client-comment').value = '';
                         document.querySelectorAll('.neon-btn').forEach(btn => btn.classList.remove('selected'));
-                        selectedTariff = null; selectedTime = null;
+                        selectedTariff = null; selectedTime = null; selectedPrice = null; // Сбрасываем цену
                     } else {
                         if (tg) tg.showAlert('Ошибка. Попробуй позже.');
                     }
