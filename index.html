@@ -42,10 +42,8 @@
             transform: translate(-50%, -50%) rotateX(15deg);
             transition: transform 0.1s ease-out;
             background-image: 
-                /* Пол (сетка) */
                 repeating-linear-gradient(90deg, transparent 0, transparent 80px, rgba(245,197,24,0.02) 80px, rgba(245,197,24,0.02) 82px),
                 repeating-linear-gradient(0deg, transparent 0, transparent 80px, rgba(245,197,24,0.02) 80px, rgba(245,197,24,0.02) 82px),
-                /* Стены (бетон) */
                 linear-gradient(90deg, #050505 0%, transparent 30%, transparent 70%, #050505 100%);
             background-size: 100% 100%, 100% 100%, 100% 100%;
         }
@@ -70,7 +68,26 @@
         .emergency-light.right { left: auto; right: 20%; animation-delay: 2s; }
         @keyframes blink { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.8; box-shadow: 0 0 60px 20px rgba(255,0,0,0.5); } }
 
-        /* ====== ЭКРАН ВХОДА ====== */
+        /* ====== ЛЕВИТИРУЮЩИЙ ПРОТИВОГАЗ НА ФОНЕ ====== */
+        .gas-mask-container {
+            position: absolute;
+            top: 45%; left: 50%;
+            width: 250px; height: 250px;
+            transform: translate(-50%, -50%);
+            z-index: 5; /* Позади двери, но впереди фона */
+            opacity: 0.15; /* Затемненный */
+            filter: drop-shadow(0 0 20px rgba(0,0,0,0.9)) blur(1px);
+            animation: floatMask 8s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+        @keyframes floatMask {
+            0% { transform: translate(-50%, -50%) translateX(-60px) rotate(-10deg); }
+            100% { transform: translate(-50%, -50%) translateX(60px) rotate(10deg); }
+        }
+        /* Детализированный SVG противогаз */
+        .gas-mask-container svg { width: 100%; height: 100%; }
+
+        /* ====== ЭКРАН ВХОДА (ОДИН ЛЮК) ====== */
         #welcome-screen {
             height: 100vh; display: flex; flex-direction: column;
             justify-content: center; align-items: center;
@@ -85,99 +102,87 @@
         }
         .flash.active { opacity: 1; }
 
-        /* Контейнер дверей */
-        .door-container {
+        /* Единая дверь-люк */
+        .vault-door {
             position: absolute; inset: 0;
-            display: flex; z-index: 50;
-            transition: transform 1.5s cubic-bezier(0.85, 0, 0.15, 1); /* Тяжелый, медленный ход */
-        }
-        
-        /* Сама дверь */
-        .door {
-            width: 50%; height: 100%;
-            position: relative;
-            /* Текстура: темный металл, ржавчина, заклепки */
-            background-color: #0f0f0f;
+            background-color: #0a0a0a;
             background-image: 
-                /* Ржавые разводы */
-                radial-gradient(ellipse at 10% 90%, rgba(107,46,46,0.4) 0%, transparent 40%),
-                radial-gradient(ellipse at 90% 20%, rgba(107,46,46,0.3) 0%, transparent 30%),
-                /* Заклепки */
-                radial-gradient(circle at 10px 10px, #333 2px, transparent 3px),
-                radial-gradient(circle at 10px 10px, #000 1px, transparent 2px),
-                /* Панели */
-                linear-gradient(180deg, #151515 0%, #0a0a0a 100%);
-            background-size: 100% 100%, 100% 100%, 50px 50px, 50px 50px, 100% 100%;
-            border: 4px solid #000;
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.95), inset 0 0 20px rgba(0,0,0,1);
+                /* Текстура металла (сетка заклепок) */
+                radial-gradient(circle at 20px 20px, #222 3px, transparent 4px),
+                /* Пятна ржавчины и грязи */
+                radial-gradient(ellipse at 30% 70%, rgba(107,46,46,0.3) 0%, transparent 40%),
+                radial-gradient(ellipse at 80% 20%, rgba(107,46,46,0.2) 0%, transparent 30%),
+                /* Царапины и блики */
+                repeating-linear-gradient(90deg, transparent 0, transparent 2px, rgba(255,255,255,0.02) 3px, transparent 4px),
+                /* Основной темный градиент */
+                linear-gradient(135deg, #151515 0%, #050505 100%);
+            background-size: 40px 40px, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+            border: 12px solid #000;
+            box-shadow: inset 0 0 150px rgba(0,0,0,1), inset 0 0 50px rgba(0,0,0,0.8);
+            z-index: 50;
             display: flex; align-items: center; justify-content: center;
-        }
-        
-        .door.left { border-right: 2px solid #1a1a1a; }
-        .door.right { border-left: 2px solid #1a1a1a; }
-
-        /* Предупреждающие полосы */
-        .hazard-stripes {
-            position: absolute; bottom: 15%; left: 0; right: 0; height: 30px;
-            background: repeating-linear-gradient(-45deg, #f5c518 0, #f5c518 15px, #000 15px, #000 30px);
-            border-top: 2px solid #000; border-bottom: 2px solid #000;
-            opacity: 0.7; box-shadow: inset 0 0 30px rgba(0,0,0,0.9);
-            filter: grayscale(0.5); /* Делаем полосы грязными */
+            /* Анимация отъезда влево */
+            transition: transform 2s cubic-bezier(0.85, 0, 0.15, 1);
+            overflow: hidden;
         }
 
-        /* Штурвал */
-        .door-wheel {
-            width: 160px; height: 160px;
-            border: 12px solid #1c1c1c; border-radius: 50%;
-            position: relative;
-            background: radial-gradient(circle, #000 30%, #151515 100%);
+        /* Детализированный замок (штурвал) */
+        .vault-lock {
+            width: 280px; height: 280px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #1a1a1a 0%, #0a0a0a 60%, #000 100%);
+            border: 12px solid #111;
             box-shadow: 
-                0 15px 30px rgba(0,0,0,0.9), 
-                inset 0 0 20px rgba(0,0,0,1),
-                0 0 0 6px #000; /* Внешний обод */
+                0 15px 40px rgba(0,0,0,0.95),
+                inset 0 0 30px rgba(0,0,0,1),
+                inset 0 0 10px rgba(255,255,255,0.05);
+            position: relative;
+            display: flex; align-items: center; justify-content: center;
             z-index: 2;
         }
-        /* Рукоятки штурвала */
-        .door-wheel::before, .door-wheel::after {
-            content: ''; position: absolute; top: 50%; left: 50%;
-            width: 160%; height: 20px; background: #151515;
-            transform: translate(-50%, -50%);
-            box-shadow: inset 0 0 10px #000;
-            border: 2px solid #2a2a2a; border-radius: 4px;
+        /* Скрещенные рукоятки */
+        .vault-lock::before, .vault-lock::after {
+            content: ''; position: absolute;
+            width: 110%; height: 35px;
+            background: linear-gradient(180deg, #222, #111, #050505);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.9), inset 0 2px 5px rgba(255,255,255,0.1);
+            border: 2px solid #000;
+            border-radius: 6px;
         }
-        .door-wheel::after { transform: translate(-50%, -50%) rotate(90deg); }
+        .vault-lock::after { transform: rotate(90deg); }
         
-        /* Центральный замок */
-        .wheel-center {
-            position: absolute; top: 50%; left: 50%;
-            width: 40px; height: 40px; background: #0a0a0a;
-            border-radius: 50%; transform: translate(-50%, -50%);
-            box-shadow: inset 0 0 15px #000; z-index: 3; border: 3px solid #222;
+        /* Центральный болт */
+        .vault-lock-center {
+            width: 70px; height: 70px;
+            background: radial-gradient(circle, #333, #000);
+            border-radius: 50%; z-index: 3;
+            box-shadow: inset 0 0 15px #000, 0 0 15px rgba(0,0,0,1);
+            border: 4px solid #1a1a1a;
             display: flex; align-items: center; justify-content: center;
         }
-        .wheel-center::before {
-            content: ''; width: 10px; height: 10px; background: #000; border-radius: 50%;
+        .vault-lock-center::before {
+            content: ''; width: 15px; height: 15px; background: #000; border-radius: 50%;
+            box-shadow: inset 0 0 5px rgba(255,255,255,0.2);
         }
 
-        /* Анимация открытия */
-        .door-container.open .door.left { transform: translateX(-100%); }
-        .door-container.open .door.right { transform: translateX(100%); }
-
-        /* Контент после открытия */
-        .welcome-content {
-            text-align: center; z-index: 60;
-            opacity: 0; transition: opacity 1s ease 1s; /* Появится через 1 секунду */
-            transform: translateY(20px); transition: all 1s ease 1s;
-            display: flex; flex-direction: column; align-items: center;
+        /* Предупреждающие полосы внизу */
+        .hazard-stripes {
+            position: absolute; bottom: 10%; left: 0; right: 0; height: 50px;
+            background: repeating-linear-gradient(-45deg, #f5c518 0, #f5c518 25px, #000 25px, #000 50px);
+            border-top: 4px solid #000; border-bottom: 4px solid #000;
+            opacity: 0.6; box-shadow: inset 0 0 30px rgba(0,0,0,0.9);
+            filter: grayscale(0.3); /* Делаем полосы слегка грязными */
         }
-        .welcome-content.show { opacity: 1; transform: translateY(0); }
+
+        /* Анимация открытия (сдвиг влево) */
+        .vault-door.open { transform: translateX(-100%); }
 
         /* Кнопка входа */
         .enter-btn {
             position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             z-index: 100;
-            background: #111;
+            background: #0a0a0a;
             color: var(--hazard-yellow); border: 4px solid var(--hazard-yellow);
             padding: 20px 60px; font-size: 24px;
             font-family: 'Russo One', sans-serif;
@@ -188,6 +193,15 @@
         }
         .enter-btn:active { transform: translate(-50%, -50%) scale(0.95); box-shadow: 0 0 60px rgba(245, 197, 24, 0.6); }
         .enter-btn.hidden { opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+
+        /* Контент после открытия */
+        .welcome-content {
+            text-align: center; z-index: 60;
+            opacity: 0; transition: opacity 1s ease 1s;
+            transform: translateY(20px); transition: all 1s ease 1s;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .welcome-content.show { opacity: 1; transform: translateY(0); }
 
         .logo {
             font-family: 'Russo One', sans-serif;
@@ -356,22 +370,57 @@
         <div class="emergency-light right"></div>
     </div>
 
+    <!-- Левитирующий противогаз (сзади двери) -->
+    <div class="gas-mask-container">
+        <!-- Детализированный SVG противогаз -->
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <radialGradient id="lens" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#334" />
+                    <stop offset="80%" stop-color="#111" />
+                    <stop offset="100%" stop-color="#000" />
+                </radialGradient>
+                <linearGradient id="metal" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#555" />
+                    <stop offset="50%" stop-color="#222" />
+                    <stop offset="100%" stop-color="#050505" />
+                </linearGradient>
+            </defs>
+            <!-- Лицо / Резина -->
+            <path d="M20,40 C20,15 80,15 80,40 C85,60 75,85 50,95 C25,85 15,60 20,40 Z" fill="#111" stroke="#222" stroke-width="2"/>
+            <!-- Стекло левое -->
+            <circle cx="35" cy="40" r="14" fill="url(#lens)" stroke="#333" stroke-width="3"/>
+            <path d="M28,35 Q35,30 42,35" stroke="rgba(255,255,255,0.2)" stroke-width="2" fill="none"/>
+            <!-- Стекло правое -->
+            <circle cx="65" cy="40" r="14" fill="url(#lens)" stroke="#333" stroke-width="3"/>
+            <path d="M58,35 Q65,30 72,35" stroke="rgba(255,255,255,0.2)" stroke-width="2" fill="none"/>
+            <!-- Респиратор (снизу) -->
+            <path d="M35,65 C35,80 65,80 65,65 Z" fill="url(#metal)" stroke="#000" stroke-width="2"/>
+            <!-- Сетка респиратора -->
+            <line x1="40" y1="68" x2="60" y2="68" stroke="#000" stroke-width="2"/>
+            <line x1="42" y1="73" x2="58" y2="73" stroke="#000" stroke-width="2"/>
+            <line x1="44" y1="78" x2="56" y2="78" stroke="#000" stroke-width="2"/>
+            <!-- Шланг / фильтр -->
+            <path d="M50,80 Q50,100 30,110" stroke="#222" stroke-width="8" fill="none" stroke-linecap="round"/>
+            <circle cx="30" cy="110" r="10" fill="#1a1a1a" stroke="#000" stroke-width="2"/>
+            <!-- Ремешки -->
+            <path d="M15,40 Q5,45 10,60" stroke="#1a1a1a" stroke-width="5" fill="none"/>
+            <path d="M85,40 Q95,45 90,60" stroke="#1a1a1a" stroke-width="5" fill="none"/>
+        </svg>
+    </div>
+
     <!-- ЭКРАН ВХОДА -->
     <div id="welcome-screen">
         
-        <!-- Кнопка Войти (поверх дверей) -->
+        <!-- Кнопка Войти (поверх двери) -->
         <button class="enter-btn" id="enter-btn" onclick="openDoors()">Войти</button>
 
-        <!-- Двери -->
-        <div class="door-container" id="door-container">
-            <div class="door left">
-                <div class="hazard-stripes"></div>
-                <div class="door-wheel"><div class="wheel-center"></div></div>
+        <!-- Единый люк -->
+        <div class="vault-door" id="vault-door">
+            <div class="vault-lock">
+                <div class="vault-lock-center"></div>
             </div>
-            <div class="door right">
-                <div class="hazard-stripes"></div>
-                <div class="door-wheel"><div class="wheel-center"></div></div>
-            </div>
+            <div class="hazard-stripes"></div>
         </div>
         
         <!-- Контент (появится после открытия) -->
@@ -512,7 +561,7 @@
             
             const btn = document.getElementById('enter-btn');
             const flash = document.getElementById('flash');
-            const doors = document.getElementById('door-container');
+            const vaultDoor = document.getElementById('vault-door'); // Изменено на одну дверь
             const content = document.getElementById('welcome-content');
             const welcomeScreen = document.getElementById('welcome-screen');
             const mainApp = document.getElementById('main-app');
@@ -523,15 +572,15 @@
             // 2. Вспышка
             flash.classList.add('active');
             
-            // 3. Начинаем открывать двери (через 150мс)
+            // 3. Открываем дверь (через 150мс)
             setTimeout(() => {
                 flash.classList.remove('active');
-                doors.classList.add('open'); // Двери уезжают
+                vaultDoor.classList.add('open'); // Дверь уезжает влево
                 content.classList.add('show'); // Появляется логотип
                 if (tg) tg.HapticFeedback.impactOccurred('medium');
             }, 150);
 
-            // 4. Показываем главное приложение (через 2.5 секунды, когда двери откроются)
+            // 4. Показываем главное приложение (через 2.5 секунды, когда дверь откроется)
             setTimeout(() => {
                 welcomeScreen.style.display = 'none';
                 mainApp.style.display = 'block';
