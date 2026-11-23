@@ -28,37 +28,13 @@
             min-height: 100vh;
         }
 
-        /* ====== ФОН ЗА ДВЕРЬЮ ====== */
-        .bunker-bg {
-            position: fixed; inset: 0; z-index: 0; pointer-events: none;
-            perspective: 1000px; overflow: hidden;
-            background: radial-gradient(circle at 50% 30%, #151515 0%, #000 100%);
-        }
-        .bunker-room {
-            position: absolute; top: 50%; left: 50%;
-            width: 200vw; height: 200vh;
-            transform: translate(-50%, -50%) rotateX(15deg);
-            transition: transform 0.1s ease-out;
-            background-image: 
-                repeating-linear-gradient(90deg, transparent 0, transparent 80px, rgba(245,197,24,0.02) 80px, rgba(245,197,24,0.02) 82px),
-                repeating-linear-gradient(0deg, transparent 0, transparent 80px, rgba(245,197,24,0.02) 80px, rgba(245,197,24,0.02) 82px),
-                linear-gradient(90deg, #050505 0%, transparent 30%, transparent 70%, #050505 100%);
-            background-size: 100% 100%, 100% 100%, 100% 100%;
-        }
-
-        /* ====== ЭКРАН ВХОДА (СЕЙФ) ====== */
+        /* ====== ЭКРАН ВХОДА (ДВЕРЬ-СЕЙФ) ====== */
         #welcome-screen {
             height: 100vh; display: flex; flex-direction: column;
             justify-content: center; align-items: center;
             position: relative; z-index: 10; overflow: hidden;
             background: #050505;
         }
-
-        .flash {
-            position: fixed; inset: 0; background: #fff; z-index: 9999;
-            opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
-        }
-        .flash.active { opacity: 1; }
 
         .vault-door {
             position: absolute; inset: 0;
@@ -71,7 +47,7 @@
                 linear-gradient(135deg, #151515 0%, #0a0a0a 100%);
             background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px, 100% 100%;
             border: 10px solid #000;
-            box-shadow: inset 0 0 150px rgba(0,0,0,1), inset 0 0 20px rgba(0,0,0,1);
+            box-shadow: inset 0 0 150px rgba(0,0,0,1);
             z-index: 50;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             transition: transform 2s cubic-bezier(0.77, 0, 0.175, 1);
@@ -84,22 +60,15 @@
             position: absolute; bottom: 10%; left: 0; right: 0; height: 40px;
             background: repeating-linear-gradient(-45deg, #f5c518 0, #f5c518 20px, #111 20px, #111 40px);
             border-top: 3px solid #000; border-bottom: 3px solid #000;
-            opacity: 0.8; box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+            opacity: 0.8;
         }
 
         .door-text {
             position: absolute; top: 15%;
             font-family: 'Russo One', sans-serif;
             font-size: 24px; color: #333;
-            text-shadow: 2px 2px 0 #000, -1px -1px 0 #444;
+            text-shadow: 2px 2px 0 #000;
             letter-spacing: 5px; text-align: center; width: 100%;
-        }
-
-        .vault-wheel-container {
-            position: relative;
-            width: 320px; height: 320px;
-            display: flex; align-items: center; justify-content: center;
-            z-index: 10; pointer-events: none;
         }
 
         .door-light {
@@ -108,7 +77,7 @@
             background: var(--red-light); border-radius: 10px;
             box-shadow: 0 0 40px 15px rgba(255,26,26,0.4);
             animation: blinkLight 2s infinite alternate;
-            transform: translateY(-50%); pointer-events: none;
+            transform: translateY(-50%);
         }
         .door-light.left { left: 10%; }
         .door-light.right { right: 10%; animation-delay: 1s; }
@@ -118,33 +87,33 @@
             100% { opacity: 1; box-shadow: 0 0 60px 25px rgba(255,26,26,0.6); }
         }
 
+        .vault-wheel-container {
+            position: relative;
+            width: 320px; height: 320px;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 10; pointer-events: none;
+        }
+
         .vault-wheel {
             width: 100%; height: 100%;
             border: 20px solid #1a1a1a; border-radius: 50%;
             position: relative;
             background: radial-gradient(circle, #050505 40%, #111 100%);
-            box-shadow: 
-                0 20px 40px rgba(0,0,0,0.9), 
-                inset 0 0 30px rgba(0,0,0,1),
-                0 0 0 8px #000,
-                inset 0 0 0 5px #333;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.9), inset 0 0 30px rgba(0,0,0,1), 0 0 0 8px #000;
         }
 
         .vault-wheel::before, .vault-wheel::after {
             content: ''; position: absolute; top: 50%; left: 50%;
             width: 130%; height: 25px; background: #1a1a1a;
             transform: translate(-50%, -50%);
-            box-shadow: inset 0 0 10px #000, 0 5px 15px rgba(0,0,0,0.8);
-            border: 2px solid #2a2a2a; border-radius: 4px;
+            box-shadow: inset 0 0 10px #000; border: 2px solid #2a2a2a; border-radius: 4px;
         }
         .vault-wheel::after { transform: translate(-50%, -50%) rotate(90deg); }
         
         .vault-spoke-diag {
             position: absolute; top: 50%; left: 50%;
             width: 130%; height: 25px; background: #1a1a1a;
-            box-shadow: inset 0 0 10px #000, 0 5px 15px rgba(0,0,0,0.8);
-            border: 2px solid #2a2a2a; border-radius: 4px;
-            z-index: -1;
+            box-shadow: inset 0 0 10px #000; border: 2px solid #2a2a2a; border-radius: 4px; z-index: -1;
         }
         .vault-spoke-diag.spoke-1 { transform: translate(-50%, -50%) rotate(45deg); }
         .vault-spoke-diag.spoke-2 { transform: translate(-50%, -50%) rotate(-45deg); }
@@ -157,41 +126,16 @@
             font-family: 'Russo One', sans-serif;
             text-transform: uppercase; letter-spacing: 3px;
             cursor: pointer; border-radius: 8px;
-            box-shadow: 0 0 30px rgba(245, 197, 24, 0.4), inset 0 0 20px rgba(245, 197, 24, 0.2);
+            box-shadow: 0 0 30px rgba(245, 197, 24, 0.4);
             transition: 0.2s; pointer-events: auto;
         }
-        .enter-btn:active { transform: scale(0.95); box-shadow: 0 0 60px rgba(245, 197, 24, 0.8); }
-        .enter-btn.hidden { opacity: 0; pointer-events: none; transition: opacity 0.3s; }
-
-        /* Заглушка вместо логотипа */
-        .welcome-content {
-            text-align: center; z-index: 60;
-            opacity: 0; transition: opacity 1s ease 0.5s;
-            position: absolute;
-            display: flex; justify-content: center; align-items: center;
-        }
-        .welcome-content.show { opacity: 1; animation: sparkle 2s infinite alternate; }
-
-        @keyframes sparkle {
-            0% { filter: drop-shadow(0 0 10px rgba(245, 197, 24, 0.4)); transform: scale(1); }
-            100% { filter: drop-shadow(0 0 30px rgba(245, 197, 24, 0.9)); transform: scale(1.02); }
-        }
-
-        .text-logo-placeholder {
-            font-family: 'Russo One', sans-serif;
-            font-size: 40px; color: var(--hazard-yellow);
-            text-shadow: 4px 4px 0 #000;
-            letter-spacing: 4px; padding: 20px;
-            border: 4px solid var(--hazard-yellow);
-            background: #111; text-align: center;
-        }
-        .text-logo-placeholder span { display: block; font-size: 16px; color: #fff; margin-top: 10px; }
+        .enter-btn:active { transform: scale(0.95); }
 
         /* ====== ОСНОВНОЕ ПРИЛОЖЕНИЕ ====== */
         #main-app { display: none; padding-bottom: 50px; position: relative; z-index: 10; min-height: 100vh; }
 
         header {
-            display: flex; align-items: center; padding: 10px 20px;
+            display: flex; align-items: center; padding: 15px 20px;
             position: sticky; top: 0;
             background: rgba(10, 10, 10, 0.95);
             border-bottom: 2px solid var(--hazard-yellow);
@@ -200,23 +144,20 @@
         .menu-icon { 
             width: 35px; height: 25px; display: flex; flex-direction: column; 
             justify-content: space-between; cursor: pointer; padding: 5px;
-            border: 1px solid #333; background: #111; z-index: 101;
+            border: 1px solid #333; background: #111;
         }
         .menu-icon span { width: 100%; height: 3px; background: var(--hazard-yellow); }
-        
         .header-title {
-            margin-left: 15px; font-family: 'Russo One', sans-serif;
+            margin-left: 20px; font-family: 'Russo One', sans-serif;
             font-size: 20px; color: var(--hazard-yellow); letter-spacing: 2px;
         }
 
-        /* ====== SIDEBAR ====== */
+        /* SIDEBAR */
         #sidebar {
             position: fixed; top: 0; left: -280px; width: 270px; height: 100vh;
-            background: #0a0a0a;
-            border-right: 2px solid var(--hazard-yellow);
+            background: #0a0a0a; border-right: 2px solid var(--hazard-yellow);
             z-index: 200; transition: left 0.3s ease-in-out;
-            padding: 25px 20px; overflow-y: auto;
-            box-shadow: 5px 0 30px rgba(0,0,0,0.9);
+            padding: 25px 20px; overflow-y: auto; box-shadow: 5px 0 30px rgba(0,0,0,0.9);
         }
         #sidebar.open { left: 0; }
         .close-btn { font-size: 30px; color: var(--hazard-yellow); cursor: pointer; margin-bottom: 30px; }
@@ -229,7 +170,7 @@
         .nav-link:active { color: var(--hazard-yellow); background: #151515; }
         .nav-icon { width: 24px; height: 24px; margin-right: 15px; stroke: var(--hazard-yellow); stroke-width: 2; fill: none; }
 
-        /* ====== КОНТЕНТ ====== */
+        /* КОНТЕНТ */
         .content-section { display: none; padding: 20px; }
         .content-section.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -242,9 +183,8 @@
             border-bottom: 3px solid #000;
         }
 
-        /* ====== КНОПКИ-ШЕСТЕРЕНКИ ====== */
+        /* КНОПКИ-ШЕСТЕРЕНКИ */
         .grid-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
-        
         .gear-btn-wrapper { position: relative; display: flex; justify-content: center; align-items: center; }
         
         .gear-bg {
@@ -252,7 +192,6 @@
             background: repeating-conic-gradient(#333 0deg 15deg, transparent 15deg 30deg);
             border-radius: 50%; z-index: 0; opacity: 0.2;
             transition: transform 0.5s ease-out, opacity 0.3s;
-            pointer-events: none;
         }
         .neon-btn {
             position: relative; z-index: 1;
@@ -270,10 +209,10 @@
             box-shadow: 0 0 20px rgba(245, 197, 24, 0.3), inset 0 0 10px rgba(255,255,255,0.3);
             font-weight: 900;
         }
-        .neon-btn.selected ~ .gear-bg { opacity: 0.8; transform: rotate(45deg); }
+        .neon-btn.selected + .gear-bg { opacity: 0.8; transform: rotate(45deg); }
         .full-width { grid-column: 1 / -1; }
 
-        /* ====== ИНПУТЫ ====== */
+        /* ИНПУТЫ */
         .form-input {
             width: 100%; padding: 15px; margin-bottom: 15px;
             background: #0a0a0a; border: 2px solid #222;
@@ -293,7 +232,7 @@
         }
         .submit-btn:active { transform: scale(0.98); }
 
-        /* ====== ОБОРУДОВАНИЕ ====== */
+        /* ОБОРУДОВАНИЕ */
         .equip-block { margin-bottom: 30px; }
         .equip-header {
             background: #1a1a1a; color: var(--hazard-yellow);
@@ -306,7 +245,7 @@
         .spec-value { width: 60%; padding: 12px 10px; text-align: right; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: flex-end; color: #ddd; }
         .spec-value .red-text { color: var(--hazard-yellow); margin-left: 5px; }
 
-        /* ====== ПАРТНЕРЫ ====== */
+        /* ПАРТНЕРЫ */
         .partners-block {
             margin-top: 40px; border: 2px solid #222; border-radius: 8px; padding: 20px; text-align: center;
             background: #0a0a0a;
@@ -315,7 +254,7 @@
         .partners-list { display: flex; justify-content: center; gap: 30px; align-items: center; }
         .partner-logo { color: var(--hazard-yellow); font-family: 'Russo One', sans-serif; font-size: 22px; text-transform: uppercase; }
 
-        /* ====== АДМИНКА ====== */
+        /* АДМИНКА */
         .admin-box { background: #0a0a0a; border: 1px solid #222; border-radius: 8px; padding: 20px; margin-top: 20px; }
         .admin-stat { display: flex; justify-content: space-between; border-bottom: 1px dashed #222; padding: 10px 0; font-size: 14px; }
         .price-group { margin-bottom: 20px; }
@@ -327,13 +266,7 @@
 </head>
 <body>
 
-    <div class="flash" id="flash"></div>
-
-    <div class="bunker-bg">
-        <div class="bunker-room" id="bunker-room"></div>
-    </div>
-
-    <!-- ЭКРАН ВХОДА -->
+    <!-- ЭКРАН ВХОДА (ДВЕРЬ) -->
     <div id="welcome-screen">
         <div class="vault-door" id="vault-door">
             <div class="door-text">СЕКТОР 47</div>
@@ -345,30 +278,21 @@
                     <div class="vault-spoke-diag spoke-1"></div>
                     <div class="vault-spoke-diag spoke-2"></div>
                 </div>
-                <!-- Убрал onclick, теперь работает через JS -->
-                <button class="enter-btn" id="enter-btn">ВОЙТИ</button>
+                <button class="enter-btn" onclick="enterApp()">ВОЙТИ</button>
             </div>
             <div class="hazard-stripes"></div>
-        </div>
-        
-        <!-- Текстовая заглушка вместо логотипа -->
-        <div class="welcome-content" id="welcome-content">
-            <div class="text-logo-placeholder">
-                БУНКЕР
-                <span>КОМПЬЮТЕРНЫЙ КЛУБ</span>
-            </div>
         </div>
     </div>
 
     <!-- ОСНОВНОЕ ПРИЛОЖЕНИЕ -->
     <div id="main-app">
         <header>
-            <div class="menu-icon" id="menu-btn"><span></span><span></span><span></span></div>
+            <div class="menu-icon" onclick="toggleMenu()"><span></span><span></span><span></span></div>
             <div class="header-title">БУНКЕР</div>
         </header>
 
         <div id="sidebar">
-            <div class="close-btn" id="close-btn">×</div>
+            <div class="close-btn" onclick="toggleMenu()">×</div>
             <div class="nav-link" onclick="showSection('booking')"><svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2" ry="2"></rect><line x1="2" y1="20" x2="22" y2="20"></line></svg>Бронь ПК</div>
             <div class="nav-link" onclick="showSection('equipment')"><svg class="nav-icon" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>Оборудование</div>
             <div class="nav-link" onclick="showSection('tournaments')"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>Турниры</div>
@@ -456,23 +380,14 @@
     </div>
 
     <script>
-        // Безопасная инициализация Telegram
-        let tg = null;
-        try {
-            if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
-                tg = window.Telegram.WebApp;
-                tg.ready();
-                tg.expand();
-            }
-        } catch(e) { console.log('Telegram SDK не найден'); }
+        // --- НАСТРОЙКИ SUPABASE (КАК В ОРИГИНАЛЕ) ---
+        const SUPABASE_URL = 'https://npnlilxgqyajqzvephm.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_U7swAGN1I2faMCB1BTmxDQ_2kL2pNCp';
 
-        // Безопасная инициализация Supabase
-        let supabaseClient = null;
-        try {
-            if (typeof supabase !== 'undefined') {
-                supabaseClient = supabase.createClient('https://npnlilxgqyajqzvephm.supabase.co', 'sb_publishable_U7swAGN1I2faMCB1BTmxDQ_2kL2pNCp');
-            }
-        } catch(e) { console.log('Supabase не загружен'); }
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        const tg = window.Telegram.WebApp;
+        if (tg) { tg.ready(); tg.expand(); }
 
         const BOT_TOKEN = "9070589832:AAG-rxtW7h2Z87cOCbv6TsgdMWrFsJZnfY4";
         const MY_CHAT_ID = "7948923802";
@@ -486,106 +401,87 @@
 
         let priceList = defaultPrices;
         let clubStats = { orders: 0, revenue: 0 };
-        let selectedTariff = 'STANDART';
+        let selectedTariff = 'STANDART'; 
         let selectedTime = null;
         let selectedPrice = null;
 
-        // Ждем полной загрузки страницы
-        window.addEventListener('DOMContentLoaded', () => {
-            
-            // --- ОБРАБОТЧИКИ КЛИКОВ (ЧИСТЫЙ JS) ---
-            
-            // 1. Кнопка Войти
-            const enterBtn = document.getElementById('enter-btn');
-            if (enterBtn) {
-                enterBtn.addEventListener('click', () => {
-                    // Сама анимация
-                    try { if (tg) tg.HapticFeedback.impactOccurred('heavy'); } catch(e) {}
-                    
-                    const flash = document.getElementById('flash');
-                    const door = document.getElementById('vault-door');
-                    const content = document.getElementById('welcome-content');
-                    const welcomeScreen = document.getElementById('welcome-screen');
-                    const mainApp = document.getElementById('main-app');
-
-                    enterBtn.classList.add('hidden');
-                    
-                    setTimeout(() => {
-                        if (door) door.classList.add('open');
-                        if (flash) {
-                            flash.classList.add('active');
-                            setTimeout(() => flash.classList.remove('active'), 100);
-                        }
-                    }, 100);
-
-                    setTimeout(() => {
-                        if (content) content.classList.add('show');
-                    }, 800);
-
-                    setTimeout(() => {
-                        if (welcomeScreen) welcomeScreen.style.display = 'none';
-                        if (mainApp) mainApp.style.display = 'block';
-                    }, 2500); 
-                });
-            }
-
-            // 2. Боковое меню
-            const menuBtn = document.getElementById('menu-btn');
-            const closeBtn = document.getElementById('close-btn');
-            const sidebar = document.getElementById('sidebar');
-            
-            if (menuBtn && sidebar) {
-                menuBtn.addEventListener('click', () => sidebar.classList.add('open'));
-            }
-            if (closeBtn && sidebar) {
-                closeBtn.addEventListener('click', () => sidebar.classList.remove('open'));
-            }
-
-            // Загрузка БД
-            loadDataFromDB();
-        });
-
-        // ===== ФУНКЦИИ БАЗЫ ДАННЫХ =====
+        // --- ФУНКЦИИ БАЗЫ ДАННЫХ (ОРИГИНАЛ) ---
         async function loadDataFromDB() {
-            if (!supabaseClient) return;
             try {
-                const { data: pricesData } = await supabaseClient.from('huss_settings').select('value').eq('key', 'prices').single();
-                if (pricesData && pricesData.value) priceList = pricesData.value;
+                const { data: pricesData, error: pricesError } = await supabaseClient
+                    .from('huss_settings').select('value').eq('key', 'prices').single();
+                
+                if (pricesData && pricesData.value) {
+                    priceList = pricesData.value;
+                } else if (pricesError && pricesError.code === 'PGRST116') {
+                    await savePricesToDB(defaultPrices);
+                }
 
-                const { data: statsData } = await supabaseClient.from('huss_settings').select('value').eq('key', 'stats').single();
-                if (statsData && statsData.value) clubStats = statsData.value;
-            } catch (e) { console.log('Ошибка БД:', e); }
+                const { data: statsData, error: statsError } = await supabaseClient
+                    .from('huss_settings').select('value').eq('key', 'stats').single();
+                
+                if (statsData && statsData.value) {
+                    clubStats = statsData.value;
+                } else if (statsError && statsError.code === 'PGRST116') {
+                    await saveStatsToDB({ orders: 0, revenue: 0 });
+                }
+            } catch (e) {
+                console.error('Ошибка загрузки из БД:', e);
+            }
         }
 
         async function savePricesToDB(prices) {
-            if (!supabaseClient) return;
-            try { await supabaseClient.from('huss_settings').upsert({ key: 'prices', value: prices }); } catch (e) {}
-        }
-        
-        async function saveStatsToDB(stats) {
-            if (!supabaseClient) return;
-            try { await supabaseClient.from('huss_settings').upsert({ key: 'stats', value: stats }); } catch (e) {}
+            try {
+                await supabaseClient.from('huss_settings').upsert({ key: 'prices', value: prices });
+            } catch (e) { console.error('Ошибка сохранения цен:', e); }
         }
 
-        // ===== ГЛОБАЛЬНЫЕ ФУНКЦИИ (ВЫЗЫВАЮТСЯ ИЗ HTML) =====
+        async function saveStatsToDB(stats) {
+            try {
+                await supabaseClient.from('huss_settings').upsert({ key: 'stats', value: stats });
+            } catch (e) { console.error('Ошибка сохранения статистики:', e); }
+        }
+
+        loadDataFromDB().then(() => {
+            if (document.getElementById('admin-dashboard').style.display === 'block') {
+                updateAdminStatsUI();
+                buildPriceEditor();
+            }
+        });
+
+        // --- ЛОГИКА ВХОДА (С АНИМАЦИЕЙ ДВЕРИ) ---
+        function enterApp() {
+            // Запускаем анимацию двери
+            document.getElementById('vault-door').classList.add('open');
+            if (tg) tg.HapticFeedback.impactOccurred('heavy');
+            
+            // Ждем 2 секунды, пока дверь уезжает, и показываем приложение
+            setTimeout(() => {
+                document.getElementById('welcome-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+            }, 2000);
+        }
+
+        function toggleMenu() { document.getElementById('sidebar').classList.toggle('open'); }
+
         function showSection(sectionId) {
             document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
             document.getElementById(sectionId).classList.add('active');
-            document.getElementById('sidebar').classList.remove('open');
+            toggleMenu(); 
         }
 
         function selectTariff(name, element) {
             document.querySelectorAll('#tariff-buttons .neon-btn').forEach(btn => btn.classList.remove('selected'));
             element.classList.add('selected');
             selectedTariff = name;
-            
-            if (selectedTime && priceList[selectedTariff]) {
+            if (selectedTime) {
                 const newPrice = priceList[selectedTariff][selectedTime];
                 selectedPrice = newPrice;
                 document.querySelectorAll('#time-buttons .neon-btn').forEach(btn => {
                     if (btn.getAttribute('data-time') === selectedTime) btn.innerText = newPrice + ' ₽';
                 });
             }
+            if (tg) tg.HapticFeedback.impactOccurred('light');
         }
 
         function selectTime(element, timeText) {
@@ -594,13 +490,11 @@
                 btn.innerText = btn.getAttribute('data-time'); 
             });
             element.classList.add('selected');
-            
-            if (priceList[selectedTariff] && priceList[selectedTariff][timeText]) {
-                const price = priceList[selectedTariff][timeText];
-                element.innerText = price + ' ₽'; 
-                selectedTime = timeText;
-                selectedPrice = price;
-            }
+            const price = priceList[selectedTariff][timeText];
+            element.innerText = price + ' ₽'; 
+            selectedTime = timeText;
+            selectedPrice = price;
+            if (tg) tg.HapticFeedback.impactOccurred('light');
         }
 
         async function submitBooking() {
@@ -609,7 +503,7 @@
             const comment = document.getElementById('client-comment').value.trim();
 
             if (!selectedTariff || !selectedTime) {
-                if (tg) tg.showAlert('Выбери зону и время!'); else alert('Выбери зону и время!');
+                if (tg) tg.showAlert('Выбери тариф и время!'); else alert('Выбери тариф и время!');
                 return;
             }
             if (!name || !phone) {
@@ -622,32 +516,33 @@
             await saveStatsToDB(clubStats);
 
             const commentText = comment ? comment : "Нет";
-            const orderText = `🔥 НОВАЯ БРОНЬ БУНКЕР!\n\n💻 Зона: ${selectedTariff}\n⏰ Время: ${selectedTime}\n💰 К оплате: ${selectedPrice} ₽\n👤 Имя: ${name}\n📞 Тел: ${phone}\n💬 Комментарий: ${commentText}`;
+            const orderText = `🔥 НОВАЯ БРОНЬ БУНКЕР!\n\n💻 Тариф: ${selectedTariff}\n⏰ Время: ${selectedTime}\n💰 К оплате: ${selectedPrice} ₽\n👤 Имя: ${name}\n📞 Тел: ${phone}\n💬 Комментарий: ${commentText}`;
             const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${MY_CHAT_ID}&text=${encodeURIComponent(orderText)}`;
 
-            if (tg) tg.showAlert('Отправляем...');
+            if (tg) tg.showAlert('Отправляем бронь...');
 
-            fetch(url).then(res => {
-                if (res.ok) {
-                    if (tg) tg.showAlert('Бронь создана! Ждем тебя.');
-                    try { if (tg) tg.HapticFeedback.notificationOccurred('success'); } catch(e) {}
-                    document.getElementById('client-name').value = '';
-                    document.getElementById('client-phone').value = '';
-                    document.getElementById('client-comment').value = '';
-                    
-                    document.querySelectorAll('#time-buttons .neon-btn').forEach(btn => {
-                        btn.classList.remove('selected');
-                        btn.innerText = btn.getAttribute('data-time');
-                    });
-                    document.querySelectorAll('#tariff-buttons .neon-btn').forEach(btn => {
-                        btn.classList.remove('selected');
-                        if (btn.innerText === 'STANDART') btn.classList.add('selected');
-                    });
-                    selectedTariff = 'STANDART'; selectedTime = null; selectedPrice = null;
-                } else {
-                    if (tg) tg.showAlert('Ошибка.');
-                }
-            }).catch(() => { if (tg) tg.showAlert('Ошибка сети.'); });
+            fetch(url)
+                .then(response => {
+                    if (response.ok) {
+                        if (tg) tg.showAlert('Бронь успешно создана! Ждем тебя.');
+                        if (tg) tg.HapticFeedback.notificationOccurred('success');
+                        document.getElementById('client-name').value = '';
+                        document.getElementById('client-phone').value = '';
+                        document.getElementById('client-comment').value = '';
+                        document.querySelectorAll('#time-buttons .neon-btn').forEach(btn => {
+                            btn.classList.remove('selected');
+                            btn.innerText = btn.getAttribute('data-time');
+                        });
+                        document.querySelectorAll('#tariff-buttons .neon-btn').forEach(btn => {
+                            btn.classList.remove('selected');
+                            if (btn.innerText === 'STANDART') btn.classList.add('selected');
+                        });
+                        selectedTariff = 'STANDART'; selectedTime = null; selectedPrice = null;
+                    } else {
+                        if (tg) tg.showAlert('Ошибка. Попробуй позже.');
+                    }
+                })
+                .catch(error => { if (tg) tg.showAlert('Ошибка сети.'); });
         }
 
         function loginAdmin() {
@@ -658,6 +553,7 @@
                 document.getElementById('admin-dashboard').style.display = 'block';
                 updateAdminStatsUI();
                 buildPriceEditor();
+                if (tg) tg.HapticFeedback.notificationOccurred('success');
             } else {
                 if (tg) tg.showAlert('Неверный логин или пароль!'); else alert('Неверный логин или пароль!');
             }
@@ -699,13 +595,13 @@
         async function updatePrice(tariff, time, newPrice) {
             priceList[tariff][time] = parseInt(newPrice);
             await savePricesToDB(priceList);
+            if (selectedTariff === tariff && selectedTime === time) {
+                selectedPrice = parseInt(newPrice);
+                document.querySelectorAll('#time-buttons .neon-btn').forEach(btn => {
+                    if (btn.getAttribute('data-time') === selectedTime) btn.innerText = newPrice + ' ₽';
+                });
+            }
         }
-
-        window.addEventListener('scroll', () => {
-            const scrolled = window.scrollY;
-            const room = document.getElementById('bunker-room');
-            if (room) room.style.transform = `translate(-50%, -50%) rotateX(15deg) translateY(${scrolled * 0.2}px) rotateZ(${scrolled * 0.05}deg)`;
-        });
     </script>
 </body>
 </html>
