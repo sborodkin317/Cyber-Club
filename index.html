@@ -28,7 +28,7 @@
             min-height: 100vh;
         }
 
-        /* ====== ЭКРАН ВХОДА (ДВЕРЬ) ====== */
+        /* ====== ЭКРАН ВХОДА (ЛЮК) ====== */
         #welcome-screen {
             height: 100vh; display: flex; flex-direction: column;
             justify-content: center; align-items: center;
@@ -50,12 +50,15 @@
             box-shadow: inset 0 0 150px rgba(0,0,0,1);
             z-index: 50;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            /* Дверь уезжает медленно и тяжело */
-            transition: transform 2s cubic-bezier(0.77, 0, 0.175, 1);
+            /* Анимация: дверь сдвигается ВЛЕВО (как вторая дверь из прошлой версии) */
+            transition: transform 1.5s cubic-bezier(0.77, 0, 0.175, 1);
             overflow: hidden;
         }
         
-        .vault-door.open { transform: translateX(100%); }
+        /* Класс для сдвига двери влево */
+        .vault-door.open { 
+            transform: translateX(-100%); 
+        }
 
         .hazard-stripes {
             position: absolute; bottom: 10%; left: 0; right: 0; height: 40px;
@@ -95,34 +98,13 @@
             z-index: 10; pointer-events: none;
         }
 
-        /* Сам штурвал */
+        /* Штурвал (статичный) */
         .vault-wheel {
             width: 100%; height: 100%;
             border: 20px solid #1a1a1a; border-radius: 50%;
             position: relative;
             background: radial-gradient(circle, #050505 40%, #111 100%);
             box-shadow: 0 20px 40px rgba(0,0,0,0.9), inset 0 0 30px rgba(0,0,0,1), 0 0 0 8px #000;
-            /* Плавный переход для остановки вращения */
-            transition: transform 1s ease-out; 
-        }
-
-        /* Анимация вращения штурвала */
-        @keyframes spinWheel {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(720deg); }
-        }
-        .vault-wheel.spinning {
-            animation: spinWheel 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-
-        /* Анимация тряски двери */
-        @keyframes doorShake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
-            20%, 40%, 60%, 80% { transform: translateX(8px); }
-        }
-        .vault-door.shake {
-            animation: doorShake 0.4s ease-in-out 2; /* Трясется 2 раза */
         }
 
         .vault-wheel::before, .vault-wheel::after {
@@ -153,14 +135,14 @@
             transition: 0.2s; pointer-events: auto;
         }
         .enter-btn:active { transform: scale(0.95); }
-        .enter-btn.hidden { opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .enter-btn.hidden { opacity: 0; pointer-events: none; transition: opacity 0.2s; }
 
-        /* ====== ЛОГОТИП ПОСЛЕ ВХОДА (Заглушка) ====== */
+        /* ====== ЛОГОТИП ПОСЛЕ ВХОДА ====== */
         .welcome-content {
             position: absolute; z-index: 60;
             display: flex; justify-content: center; align-items: center;
-            opacity: 0; transform: scale(0.3) translateY(50px);
-            transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Эффект пружины */
+            opacity: 0; transform: scale(0.5) translateY(30px);
+            transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Пружинистое появление */
         }
         .welcome-content.show {
             opacity: 1; transform: scale(1) translateY(0);
@@ -321,7 +303,7 @@
             <div class="door-light right"></div>
             
             <div class="vault-wheel-container">
-                <div class="vault-wheel" id="vault-wheel">
+                <div class="vault-wheel">
                     <div class="vault-spoke-diag spoke-1"></div>
                     <div class="vault-spoke-diag spoke-2"></div>
                 </div>
@@ -330,7 +312,7 @@
             <div class="hazard-stripes"></div>
         </div>
 
-        <!-- Логотип, который вылетает после открытия -->
+        <!-- Логотип -->
         <div class="welcome-content" id="welcome-content">
             <div class="text-logo-placeholder">
                 БУНКЕР
@@ -435,7 +417,7 @@
     </div>
 
     <script>
-        // --- ЗАЩИЩЕННАЯ ИНИЦИАЛИЗАЦИЯ (ЧТОБЫ РАБОТАЛО ВЕЗДЕ) ---
+        // --- ЗАЩИЩЕННАЯ ИНИЦИАЛИЗАЦИЯ ---
         let supabaseClient = null;
         let tg = null;
 
@@ -493,13 +475,12 @@
 
         loadDataFromDB();
 
-        // --- ОХРИНИТЕЛЬНАЯ АНИМАЦИЯ ВХОДА ---
+        // --- ЛОГИКА ВХОДА (СДВИГ ВЛЕВО) ---
         window.enterApp = function() {
-            try { if (tg) tg.HapticFeedback.impactOccurred('heavy'); } catch(e) {}
+            try { if (tg) tg.HapticFeedback.impactOccurred('medium'); } catch(e) {}
             
             const btn = document.getElementById('enter-btn');
             const door = document.getElementById('vault-door');
-            const wheel = document.getElementById('vault-wheel');
             const content = document.getElementById('welcome-content');
             const welcomeScreen = document.getElementById('welcome-screen');
             const mainApp = document.getElementById('main-app');
@@ -507,37 +488,25 @@
             // 1. Скрываем кнопку
             if (btn) btn.classList.add('hidden');
 
-            // 2. Начинаем крутить штурвал (1.5 секунды)
-            if (wheel) wheel.classList.add('spinning');
-
-            // 3. Через 1.5 сек (когда штурвал докрутился) - дверь трясется
+            // 2. Дверь отъезжает ВЛЕВО (как левая створка из старых двух дверей)
             setTimeout(() => {
-                if (door) door.classList.add('shake');
+                if (door) door.classList.add('open');
                 try { if (tg) tg.HapticFeedback.impactOccurred('light'); } catch(e) {}
-            }, 1500);
+            }, 100);
 
-            // 4. Через 2.3 сек (после тряски) - дверь начинает уезжать вправо
-            setTimeout(() => {
-                if (door) {
-                    door.classList.remove('shake'); // Убираем тряску
-                    door.classList.add('open');     // Запускаем уезд
-                }
-            }, 2300);
-
-            // 5. Через 3.0 сек - прямо в проеме вылетает логотип "БУНКЕР"
+            // 3. Появляется логотип БУНКЕР (пока дверь еще едет)
             setTimeout(() => {
                 if (content) content.classList.add('show');
-                try { if (tg) tg.HapticFeedback.notificationOccurred('success'); } catch(e) {}
-            }, 3000);
+            }, 800);
 
-            // 6. Через 4.5 сек - полностью показываем главное приложение
+            // 4. Включаем главное меню
             setTimeout(() => {
                 if (welcomeScreen) welcomeScreen.style.display = 'none';
                 if (mainApp) mainApp.style.display = 'block';
-            }, 4500);
+            }, 2500); 
         };
 
-        // --- ОСТАЛЬНОЙ ФУНКЦИОНАЛ (БЕЗ ИЗМЕНЕНИЙ) ---
+        // --- ОСТАЛЬНОЙ ФУНКЦИОНАЛ ---
         window.toggleMenu = function() { 
             const sidebar = document.getElementById('sidebar');
             if (sidebar) sidebar.classList.toggle('open'); 
