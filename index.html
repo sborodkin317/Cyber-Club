@@ -166,15 +166,20 @@
             background: rgba(255,0,60,0.1);
             color: var(--neon-red);
             border: 1px solid var(--neon-red);
-            padding: 15px 5px; /* Чуть уменьшил отступы, чтобы текст влез */
+            padding: 15px 5px;
             border-radius: 10px;
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 700;
             font-family: 'Montserrat', sans-serif;
             cursor: pointer;
             text-align: center;
             box-shadow: 0 0 10px rgba(255,0,60,0.1);
             transition: 0.2s;
+            /* Чтобы текст не прыгал при смене */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 54px;
         }
         .neon-btn.selected { 
             background: var(--neon-red); 
@@ -299,10 +304,10 @@
 
             <div class="section-title">Время игры</div>
             <div class="grid-buttons" id="time-buttons">
-                <!-- ОБНОВЛЕННЫЕ КНОПКИ С ЦЕНАМИ -->
-                <div class="neon-btn" onclick="selectTime('1 час', 100, this)">1 час - 100₽</div>
-                <div class="neon-btn" onclick="selectTime('3 часа', 250, this)">3 часа - 250₽</div>
-                <div class="neon-btn" onclick="selectTime('Всю ночь', 420, this)">Всю ночь - 420₽</div>
+                <!-- data-time хранит изначальный текст, чтобы вернуть его при отмене -->
+                <div class="neon-btn" data-time="1 час" onclick="selectTime(this, '1 час', '100')">1 час</div>
+                <div class="neon-btn" data-time="3 часа" onclick="selectTime(this, '3 часа', '250')">3 часа</div>
+                <div class="neon-btn" data-time="Всю ночь" onclick="selectTime(this, 'Всю ночь', '420')">Всю ночь</div>
             </div>
 
             <div class="section-title">Твои данные</div>
@@ -399,7 +404,7 @@
 
         let selectedTariff = null;
         let selectedTime = null;
-        let selectedPrice = null; // Новая переменная для хранения цены
+        let selectedPrice = null;
 
         function selectTariff(name, element) {
             document.querySelectorAll('#tariff-buttons .neon-btn').forEach(btn => btn.classList.remove('selected'));
@@ -408,12 +413,23 @@
             if (tg) tg.HapticFeedback.impactOccurred('light');
         }
 
-        // Обновленная функция выбора времени (теперь принимает цену)
-        function selectTime(time, price, element) {
-            document.querySelectorAll('#time-buttons .neon-btn').forEach(btn => btn.classList.remove('selected'));
+        // ОБНОВЛЕННАЯ ФУНКЦИЯ: теперь меняет текст на кнопке
+        function selectTime(element, timeText, priceText) {
+            // 1. Сбрасываем все кнопки времени (возвращаем им часы)
+            const timeButtons = document.querySelectorAll('#time-buttons .neon-btn');
+            timeButtons.forEach(btn => {
+                btn.classList.remove('selected');
+                btn.innerText = btn.getAttribute('data-time'); // Возвращаем "1 час", "3 часа" и т.д.
+            });
+
+            // 2. Выделяем нажатую кнопку и ставим ей цену
             element.classList.add('selected');
-            selectedTime = time;
-            selectedPrice = price; // Запоминаем цену
+            element.innerText = priceText + ' ₽'; 
+
+            // 3. Запоминаем для отправки
+            selectedTime = timeText;
+            selectedPrice = priceText;
+
             if (tg) tg.HapticFeedback.impactOccurred('light');
         }
 
@@ -433,7 +449,6 @@
 
             const commentText = comment ? comment : "Нет";
             
-            // Добавили вывод цены в сообщение
             const orderText = `🔥 НОВАЯ БРОНЬ HUSS CLUB!\n\n💻 Тариф: ${selectedTariff}\n⏰ Время: ${selectedTime}\n💰 К оплате: ${selectedPrice} ₽\n👤 Имя: ${name}\n📞 Тел: ${phone}\n💬 Комментарий: ${commentText}`;
             const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${MY_CHAT_ID}&text=${encodeURIComponent(orderText)}`;
 
@@ -444,11 +459,21 @@
                     if (response.ok) {
                         if (tg) tg.showAlert('Бронь успешно создана! Ждем тебя.');
                         if (tg) tg.HapticFeedback.notificationOccurred('success');
+                        
+                        // Очищаем форму
                         document.getElementById('client-name').value = '';
                         document.getElementById('client-phone').value = '';
                         document.getElementById('client-comment').value = '';
-                        document.querySelectorAll('.neon-btn').forEach(btn => btn.classList.remove('selected'));
-                        selectedTariff = null; selectedTime = null; selectedPrice = null; // Сбрасываем цену
+                        
+                        // Возвращаем кнопки в исходное состояние
+                        document.querySelectorAll('.neon-btn').forEach(btn => {
+                            btn.classList.remove('selected');
+                            if (btn.hasAttribute('data-time')) {
+                                btn.innerText = btn.getAttribute('data-time');
+                            }
+                        });
+                        
+                        selectedTariff = null; selectedTime = null; selectedPrice = null;
                     } else {
                         if (tg) tg.showAlert('Ошибка. Попробуй позже.');
                     }
