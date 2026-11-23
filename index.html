@@ -163,25 +163,29 @@
         .enter-btn:active { transform: scale(0.95); box-shadow: 0 0 60px rgba(245, 197, 24, 0.8); }
         .enter-btn.hidden { opacity: 0; pointer-events: none; transition: opacity 0.3s; }
 
+        /* Заглушка вместо логотипа */
         .welcome-content {
             text-align: center; z-index: 60;
             opacity: 0; transition: opacity 1s ease 0.5s;
             position: absolute;
             display: flex; justify-content: center; align-items: center;
         }
-        .welcome-content.show { 
-            opacity: 1; animation: sparkle 2s infinite alternate; 
-        }
+        .welcome-content.show { opacity: 1; animation: sparkle 2s infinite alternate; }
 
         @keyframes sparkle {
             0% { filter: drop-shadow(0 0 10px rgba(245, 197, 24, 0.4)); transform: scale(1); }
             100% { filter: drop-shadow(0 0 30px rgba(245, 197, 24, 0.9)); transform: scale(1.02); }
         }
 
-        .main-logo-img {
-            width: 280px; height: 280px;
-            object-fit: contain; border-radius: 50%;
+        .text-logo-placeholder {
+            font-family: 'Russo One', sans-serif;
+            font-size: 40px; color: var(--hazard-yellow);
+            text-shadow: 4px 4px 0 #000;
+            letter-spacing: 4px; padding: 20px;
+            border: 4px solid var(--hazard-yellow);
+            background: #111; text-align: center;
         }
+        .text-logo-placeholder span { display: block; font-size: 16px; color: #fff; margin-top: 10px; }
 
         /* ====== ОСНОВНОЕ ПРИЛОЖЕНИЕ ====== */
         #main-app { display: none; padding-bottom: 50px; position: relative; z-index: 10; min-height: 100vh; }
@@ -196,17 +200,12 @@
         .menu-icon { 
             width: 35px; height: 25px; display: flex; flex-direction: column; 
             justify-content: space-between; cursor: pointer; padding: 5px;
-            border: 1px solid #333; background: #111;
+            border: 1px solid #333; background: #111; z-index: 101;
         }
         .menu-icon span { width: 100%; height: 3px; background: var(--hazard-yellow); }
         
-        .header-logo-img {
-            width: 45px; height: 45px; margin-left: 15px;
-            border-radius: 50%; object-fit: cover;
-            box-shadow: 0 0 10px rgba(245, 197, 24, 0.3);
-        }
         .header-title {
-            margin-left: 10px; font-family: 'Russo One', sans-serif;
+            margin-left: 15px; font-family: 'Russo One', sans-serif;
             font-size: 20px; color: var(--hazard-yellow); letter-spacing: 2px;
         }
 
@@ -346,26 +345,30 @@
                     <div class="vault-spoke-diag spoke-1"></div>
                     <div class="vault-spoke-diag spoke-2"></div>
                 </div>
-                <button class="enter-btn" id="enter-btn" onclick="openDoor()">ВОЙТИ</button>
+                <!-- Убрал onclick, теперь работает через JS -->
+                <button class="enter-btn" id="enter-btn">ВОЙТИ</button>
             </div>
             <div class="hazard-stripes"></div>
         </div>
         
+        <!-- Текстовая заглушка вместо логотипа -->
         <div class="welcome-content" id="welcome-content">
-            <img src="logo.png" alt="БУНКЕР" class="main-logo-img">
+            <div class="text-logo-placeholder">
+                БУНКЕР
+                <span>КОМПЬЮТЕРНЫЙ КЛУБ</span>
+            </div>
         </div>
     </div>
 
     <!-- ОСНОВНОЕ ПРИЛОЖЕНИЕ -->
     <div id="main-app">
         <header>
-            <div class="menu-icon" onclick="toggleMenu()"><span></span><span></span><span></span></div>
-            <img src="logo.png" alt="Логотип" class="header-logo-img">
+            <div class="menu-icon" id="menu-btn"><span></span><span></span><span></span></div>
             <div class="header-title">БУНКЕР</div>
         </header>
 
         <div id="sidebar">
-            <div class="close-btn" onclick="toggleMenu()">×</div>
+            <div class="close-btn" id="close-btn">×</div>
             <div class="nav-link" onclick="showSection('booking')"><svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2" ry="2"></rect><line x1="2" y1="20" x2="22" y2="20"></line></svg>Бронь ПК</div>
             <div class="nav-link" onclick="showSection('equipment')"><svg class="nav-icon" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>Оборудование</div>
             <div class="nav-link" onclick="showSection('tournaments')"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>Турниры</div>
@@ -453,7 +456,7 @@
     </div>
 
     <script>
-        // ===== БЕЗОПАСНАЯ ЗАГРУЗКА БИБЛИОТЕК =====
+        // Безопасная инициализация Telegram
         let tg = null;
         try {
             if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
@@ -461,8 +464,9 @@
                 tg.ready();
                 tg.expand();
             }
-        } catch(e) { console.log('Telegram SDK не найден (это нормально для браузера)'); }
+        } catch(e) { console.log('Telegram SDK не найден'); }
 
+        // Безопасная инициализация Supabase
         let supabaseClient = null;
         try {
             if (typeof supabase !== 'undefined') {
@@ -486,43 +490,62 @@
         let selectedTime = null;
         let selectedPrice = null;
 
-        // ===== АНИМАЦИЯ ДВЕРИ (С ЗАЩИТОЙ ОТ ОШИБОК) =====
-        function openDoor() {
-            try { if (tg) tg.HapticFeedback.impactOccurred('heavy'); } catch(e) {}
+        // Ждем полной загрузки страницы
+        window.addEventListener('DOMContentLoaded', () => {
             
-            const btn = document.getElementById('enter-btn');
-            const flash = document.getElementById('flash');
-            const door = document.getElementById('vault-door');
-            const content = document.getElementById('welcome-content');
-            const welcomeScreen = document.getElementById('welcome-screen');
-            const mainApp = document.getElementById('main-app');
-
-            if (btn) btn.classList.add('hidden');
+            // --- ОБРАБОТЧИКИ КЛИКОВ (ЧИСТЫЙ JS) ---
             
-            // Открываем дверь
-            setTimeout(() => {
-                if (door) door.classList.add('open');
-                if (flash) {
-                    flash.classList.add('active');
-                    setTimeout(() => flash.classList.remove('active'), 100);
-                }
-                try { if (tg) tg.HapticFeedback.impactOccurred('medium'); } catch(e) {}
-            }, 100);
+            // 1. Кнопка Войти
+            const enterBtn = document.getElementById('enter-btn');
+            if (enterBtn) {
+                enterBtn.addEventListener('click', () => {
+                    // Сама анимация
+                    try { if (tg) tg.HapticFeedback.impactOccurred('heavy'); } catch(e) {}
+                    
+                    const flash = document.getElementById('flash');
+                    const door = document.getElementById('vault-door');
+                    const content = document.getElementById('welcome-content');
+                    const welcomeScreen = document.getElementById('welcome-screen');
+                    const mainApp = document.getElementById('main-app');
 
-            // Показываем логотип
-            setTimeout(() => {
-                if (content) content.classList.add('show');
-            }, 1000);
+                    enterBtn.classList.add('hidden');
+                    
+                    setTimeout(() => {
+                        if (door) door.classList.add('open');
+                        if (flash) {
+                            flash.classList.add('active');
+                            setTimeout(() => flash.classList.remove('active'), 100);
+                        }
+                    }, 100);
 
-            // Включаем главное приложение
-            setTimeout(() => {
-                if (welcomeScreen) welcomeScreen.style.display = 'none';
-                if (mainApp) mainApp.style.display = 'block';
-                try { if (tg) tg.HapticFeedback.impactOccurred('light'); } catch(e) {}
-            }, 2500); 
-        }
+                    setTimeout(() => {
+                        if (content) content.classList.add('show');
+                    }, 800);
 
-        // ===== БАЗА ДАННЫХ =====
+                    setTimeout(() => {
+                        if (welcomeScreen) welcomeScreen.style.display = 'none';
+                        if (mainApp) mainApp.style.display = 'block';
+                    }, 2500); 
+                });
+            }
+
+            // 2. Боковое меню
+            const menuBtn = document.getElementById('menu-btn');
+            const closeBtn = document.getElementById('close-btn');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (menuBtn && sidebar) {
+                menuBtn.addEventListener('click', () => sidebar.classList.add('open'));
+            }
+            if (closeBtn && sidebar) {
+                closeBtn.addEventListener('click', () => sidebar.classList.remove('open'));
+            }
+
+            // Загрузка БД
+            loadDataFromDB();
+        });
+
+        // ===== ФУНКЦИИ БАЗЫ ДАННЫХ =====
         async function loadDataFromDB() {
             if (!supabaseClient) return;
             try {
@@ -531,27 +554,24 @@
 
                 const { data: statsData } = await supabaseClient.from('huss_settings').select('value').eq('key', 'stats').single();
                 if (statsData && statsData.value) clubStats = statsData.value;
-            } catch (e) { console.log('Ошибка загрузки БД', e); }
+            } catch (e) { console.log('Ошибка БД:', e); }
         }
 
         async function savePricesToDB(prices) {
             if (!supabaseClient) return;
-            try { await supabaseClient.from('huss_settings').upsert({ key: 'prices', value: prices }); }
-            catch (e) { console.log('Ошибка сохранения', e); }
+            try { await supabaseClient.from('huss_settings').upsert({ key: 'prices', value: prices }); } catch (e) {}
         }
+        
         async function saveStatsToDB(stats) {
             if (!supabaseClient) return;
-            try { await supabaseClient.from('huss_settings').upsert({ key: 'stats', value: stats }); }
-            catch (e) { console.log('Ошибка сохранения', e); }
+            try { await supabaseClient.from('huss_settings').upsert({ key: 'stats', value: stats }); } catch (e) {}
         }
 
-        // ===== UI ФУНКЦИИ =====
-        function toggleMenu() { document.getElementById('sidebar').classList.toggle('open'); }
-        
+        // ===== ГЛОБАЛЬНЫЕ ФУНКЦИИ (ВЫЗЫВАЮТСЯ ИЗ HTML) =====
         function showSection(sectionId) {
             document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
             document.getElementById(sectionId).classList.add('active');
-            toggleMenu();
+            document.getElementById('sidebar').classList.remove('open');
         }
 
         function selectTariff(name, element) {
@@ -566,7 +586,6 @@
                     if (btn.getAttribute('data-time') === selectedTime) btn.innerText = newPrice + ' ₽';
                 });
             }
-            try { if (tg) tg.HapticFeedback.impactOccurred('light'); } catch(e) {}
         }
 
         function selectTime(element, timeText) {
@@ -582,10 +601,8 @@
                 selectedTime = timeText;
                 selectedPrice = price;
             }
-            try { if (tg) tg.HapticFeedback.impactOccurred('light'); } catch(e) {}
         }
 
-        // ===== ОТПРАВКА БРОНИ =====
         async function submitBooking() {
             const name = document.getElementById('client-name').value.trim();
             const phone = document.getElementById('client-phone').value.trim();
@@ -608,34 +625,31 @@
             const orderText = `🔥 НОВАЯ БРОНЬ БУНКЕР!\n\n💻 Зона: ${selectedTariff}\n⏰ Время: ${selectedTime}\n💰 К оплате: ${selectedPrice} ₽\n👤 Имя: ${name}\n📞 Тел: ${phone}\n💬 Комментарий: ${commentText}`;
             const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${MY_CHAT_ID}&text=${encodeURIComponent(orderText)}`;
 
-            if (tg) tg.showAlert('Отправляем бронь...');
+            if (tg) tg.showAlert('Отправляем...');
 
-            fetch(url)
-                .then(response => {
-                    if (response.ok) {
-                        if (tg) tg.showAlert('Бронь создана! Ждем тебя в бункере.');
-                        try { if (tg) tg.HapticFeedback.notificationOccurred('success'); } catch(e) {}
-                        
-                        document.getElementById('client-name').value = '';
-                        document.getElementById('client-phone').value = '';
-                        document.getElementById('client-comment').value = '';
-                        document.querySelectorAll('#time-buttons .neon-btn').forEach(btn => {
-                            btn.classList.remove('selected');
-                            btn.innerText = btn.getAttribute('data-time');
-                        });
-                        document.querySelectorAll('#tariff-buttons .neon-btn').forEach(btn => {
-                            btn.classList.remove('selected');
-                            if (btn.innerText === 'STANDART') btn.classList.add('selected');
-                        });
-                        selectedTariff = 'STANDART'; selectedTime = null; selectedPrice = null;
-                    } else {
-                        if (tg) tg.showAlert('Ошибка. Попробуй позже.');
-                    }
-                })
-                .catch(error => { if (tg) tg.showAlert('Ошибка сети.'); });
+            fetch(url).then(res => {
+                if (res.ok) {
+                    if (tg) tg.showAlert('Бронь создана! Ждем тебя.');
+                    try { if (tg) tg.HapticFeedback.notificationOccurred('success'); } catch(e) {}
+                    document.getElementById('client-name').value = '';
+                    document.getElementById('client-phone').value = '';
+                    document.getElementById('client-comment').value = '';
+                    
+                    document.querySelectorAll('#time-buttons .neon-btn').forEach(btn => {
+                        btn.classList.remove('selected');
+                        btn.innerText = btn.getAttribute('data-time');
+                    });
+                    document.querySelectorAll('#tariff-buttons .neon-btn').forEach(btn => {
+                        btn.classList.remove('selected');
+                        if (btn.innerText === 'STANDART') btn.classList.add('selected');
+                    });
+                    selectedTariff = 'STANDART'; selectedTime = null; selectedPrice = null;
+                } else {
+                    if (tg) tg.showAlert('Ошибка.');
+                }
+            }).catch(() => { if (tg) tg.showAlert('Ошибка сети.'); });
         }
 
-        // ===== АДМИНКА =====
         function loginAdmin() {
             const login = document.getElementById('admin-login').value;
             const pass = document.getElementById('admin-pass').value;
@@ -644,7 +658,6 @@
                 document.getElementById('admin-dashboard').style.display = 'block';
                 updateAdminStatsUI();
                 buildPriceEditor();
-                try { if (tg) tg.HapticFeedback.notificationOccurred('success'); } catch(e) {}
             } else {
                 if (tg) tg.showAlert('Неверный логин или пароль!'); else alert('Неверный логин или пароль!');
             }
@@ -686,26 +699,12 @@
         async function updatePrice(tariff, time, newPrice) {
             priceList[tariff][time] = parseInt(newPrice);
             await savePricesToDB(priceList);
-            if (selectedTariff === tariff && selectedTime === time) {
-                selectedPrice = parseInt(newPrice);
-                document.querySelectorAll('#time-buttons .neon-btn').forEach(btn => {
-                    if (btn.getAttribute('data-time') === selectedTime) btn.innerText = newPrice + ' ₽';
-                });
-            }
         }
 
-        // Параллакс фона
         window.addEventListener('scroll', () => {
             const scrolled = window.scrollY;
             const room = document.getElementById('bunker-room');
-            if (room) {
-                room.style.transform = `translate(-50%, -50%) rotateX(15deg) translateY(${scrolled * 0.2}px) rotateZ(${scrolled * 0.05}deg)`;
-            }
-        });
-
-        // Запуск загрузки данных
-        document.addEventListener('DOMContentLoaded', () => {
-            loadDataFromDB();
+            if (room) room.style.transform = `translate(-50%, -50%) rotateX(15deg) translateY(${scrolled * 0.2}px) rotateZ(${scrolled * 0.05}deg)`;
         });
     </script>
 </body>
